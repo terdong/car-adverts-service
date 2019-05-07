@@ -1,6 +1,6 @@
+version := ""
+
 name := "car_adverts_service"
- 
-version := "1.0" 
       
 lazy val `car_adverts_service` = (project in file(".")).enablePlugins(PlayScala)
 
