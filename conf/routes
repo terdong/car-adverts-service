@@ -14,4 +14,4 @@ GET                 /message             controllers.AsyncController.message
 GET                 /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
 
 +nocsrf
-DELETE        /delete              controllers.HomeController.delete
+GET        /delete              controllers.HomeController.delete
