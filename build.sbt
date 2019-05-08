@@ -1,4 +1,4 @@
-version := "0.0.8"
+version := "0.0.9"
 
 name := "car_adverts_service"
       
@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "org.scanamo" %% "scanamo" % "1.0.0-M9",
   "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
   "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0",
-  "org.webjars" % "bootstrap" % "4.3.1"
+  "org.webjars" % "bootstrap" % "4.3.1",
+  "org.webjars" % "requirejs" % "2.2.0"
 )
 
 scalacOptions ++= Seq(
@@ -24,3 +25,4 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings"
 )
 
+pipelineStages := Seq(rjs)

@@ -29,9 +29,9 @@ class HomeController @Inject()(carAdverts: CarAdverts, cc: ControllerComponents)
     * a path of `/`.
     */
   def index = Action {
-    logger.debug("index")
+    //logger.debug("index")
 
-    Ok(views.html.index("Your new application is ready."))
+    Ok(views.html.pages.list())
   }
 
   def insert = ???
