@@ -1,4 +1,4 @@
-version := "0.0.6"
+version := "0.0.7"
 
 name := "car_adverts_service"
       
@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(caffeine, ws, guice)
 libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
   "org.scanamo" %% "scanamo" % "1.0.0-M9",
-  "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8"
+  "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
+  "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0"
 )
 
 scalacOptions ++= Seq(

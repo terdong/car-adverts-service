@@ -16,4 +16,8 @@ GET        /assets/*file        controllers.Assets.versioned(path="/public", fil
 
 GET        /insertTest          controllers.HomeController.insertTest
 
+GET        /updateTest          controllers.HomeController.updateTest
+
+GET        /deleteTest          controllers.HomeController.deleteTest
+
 #GET        /delete              controllers.HomeController.delete

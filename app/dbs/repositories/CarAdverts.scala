@@ -1,6 +1,8 @@
 package dbs.repositories
 
-import dbs.models.CarAdvert
+import cats.data.NonEmptyList
+import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
+import dbs.models.{CarAdvert, CarAdvertUpdate}
 import javax.inject.{Inject, Singleton}
 import org.scanamo.error.DynamoReadError
 import org.scanamo.ops.ScanamoOps
@@ -13,6 +15,7 @@ import scala.concurrent.Future
 import org.scanamo.query._
 import org.scanamo.syntax._
 import org.scanamo.auto._
+import cats.syntax.either._
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:06.
   */
@@ -28,26 +31,48 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
     def exec = ScanamoAsync.exec(client)(ops)
   }
 
+  def isExist(id:String) = {
+    table.query('id -> id).map(_.exists(_.isRight)).exec
+  }
+
   def getList = {
-    val r  = table.scan
+    val r  = table.scan.map(_.flatMap(_.toOption))
     r.exec
   }
 
-  def findById = {
-
+  def findById(id:String) = {
+//    val r = table.query('id -> id).map(_.headOption)
+    val r = table.get('id -> id).map(_.flatMap(_.toOption))
+    r.exec
   }
 
   def insert(c:CarAdvert) = {
-    val r = table.put(c)
+    val r = table.put(c).map(_.flatMap(_.toOption))
     r.exec
   }
 
-  def update() = {
-
+  def update(ca: CarAdvertUpdate)= {
+    val updates = List(
+      ca.title.map(t => set('title -> t)),
+      ca.fuel.map(f => set('fuel -> f)),
+      ca.price.map(p => set('price -> p)),
+      ca.fuel.map(f => set('fuel -> f)),
+      ca.newThing.map(n => set('newThing -> n)),
+      ca.mileage.map(m => set('mileage -> m)),
+      ca.firstRegistration.map(f => set('firstregistration -> f))
+    )
+    val r = NonEmptyList.fromList(updates.flatten).map(ups =>
+      table.update('id -> ca.id, ups.reduce)
+    ).map(_.exec)
+    Future.sequence(Option.option2Iterable(r)).map(_.headOption)
   }
 
-  def delete() = {
+/*  def update(c:CarAdvert) = {
+   // val r = table.update('id -> c.id)
+  }*/
 
+  def delete(id:String) = {
+    table.delete('id -> id).exec
   }
 
 
