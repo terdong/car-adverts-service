@@ -26,7 +26,7 @@
                         </div>
                     </div>*@
                     @helper.input(carAdvertForm("title"), 'placeholder ->"Please enter the name of the vehicle."){ (id, name, value, args) =>
-                        <input type="text" class="form-control" name="@name" id="@id" @toHtmlArgs(args) required >
+                        <input type="text" class="form-control" name="@name" id="@id" @toHtmlArgs(args) required="required" >
                     }
                     @helper.input(carAdvertForm("fuel"), 'placeholder ->"Please enter the name of the vehicle."){ (id, name, value, args) =>
                         <select class="custom-select" name="@name" id="@id" @toHtmlArgs(args)>
@@ -38,11 +38,11 @@
                        @* <input type="text" class="form-control" name="@name" id="@id" @toHtmlArgs(args) required >*@
                     }
                     @helper.input(carAdvertForm("price"), 'placeholder ->"Please enter the price of the vehicle."){ (id, name, value, args) =>
-                        <input type="number" class="form-control" name="@name" id="@id" @toHtmlArgs(args) required >
+                        <input type="number" class="form-control" name="@name" id="@id" @toHtmlArgs(args) required="required" >
                     }
                     @helper.input(carAdvertForm("newThing")){ (id, name, value, args) =>
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" name="@name" id="@id" @toHtmlArgs(args) checked>
+                            <input type="checkbox" class="custom-control-input" name="@name" id="@id" @toHtmlArgs(args) checked="checked">
                             <label class="custom-control-label" for="@id">If it is a used car, please uncheck.</label>
                         </div>
                        @* <input type="text" class="form-control is-invalid" name="@name" id="@id" @toHtmlArgs(args) >*@
