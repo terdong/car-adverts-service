@@ -1,4 +1,5 @@
 @import dbs.models.CarAdvert
+@import com.fasterxml.uuid.Generators
 @(carAdvertForm: Form[CarAdvert])(implicit request: MessagesRequestHeader)
 @* Created by DongHee Kim on 2019-05-08 오후 7:49. *@
 @implicitField = @{
@@ -12,7 +13,7 @@
         <div class="row">
             <div class="col-sm m-2">
             @helper.form(action = routes.HomeController.create()) {
-                <input type="hidden" name="id" value="">
+                <input type="hidden" name="id" value="@Generators.timeBasedGenerator().generate().toString">
                 @helper.input(carAdvertForm("title"), 'placeholder -> "Please enter the name of the vehicle.") { (id, name, value, args) =>
                     <input type="text" class="form-control @{
                         "is-invalid".when(value.isDefined)

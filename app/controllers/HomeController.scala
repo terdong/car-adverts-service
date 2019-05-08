@@ -12,6 +12,7 @@ import play.api.Logging
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
+import play.api.libs.json.Json
 import play.api.mvc._
 import views.html.defaultpages.error
 
@@ -24,7 +25,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class HomeController @Inject()(carAdverts: CarAdverts, fuels:Fuels, mcc: MessagesControllerComponents) extends MessagesAbstractController(mcc)  with Logging {
   implicit val ec = ExecutionContext.global
-
+  import play.api.libs.json._
+  implicit val carAdvertFormat = Json.format[CarAdvert]
+  implicit val residentReads = Json.reads[CarAdvert]
   val carAdvertForm = Form(
     mapping(
       "id" -> text,
@@ -45,10 +48,10 @@ class HomeController @Inject()(carAdverts: CarAdverts, fuels:Fuels, mcc: Message
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index = Action {implicit request =>
+  def index = Action.async {implicit request =>
     //logger.debug("index")
-
-    Ok(views.html.pages.list(carAdvertForm, List.empty[CarAdvert]))
+//    Ok(views.html.pages.list(List.empty[CarAdvert]))
+    carAdverts.getMaxSize.map(maxSize => Ok(views.html.pages.list(maxSize)))
   }
 
   def createForm = Action {implicit request =>
@@ -65,7 +68,6 @@ class HomeController @Inject()(carAdverts: CarAdverts, fuels:Fuels, mcc: Message
         /* binding success, you get the actual value. */
         /*val newUser = models.User(userData.name, userData.age)
         val id      = models.User.create(newUser)*/
-
         carAdverts.insert(carAdvertData).map{
           case Some(c) => Ok(c.toString)
           case None => Redirect(routes.HomeController.index)
@@ -80,7 +82,12 @@ class HomeController @Inject()(carAdverts: CarAdverts, fuels:Fuels, mcc: Message
 
   def delete = TODO
 
-  def list = TODO
+  def list = Action.async{ implicit request =>
+    carAdverts.getList.map{ list =>
+      val json = Json.toJson(list)
+      Ok(json)
+    }
+  }
 
 /*  def insertFuel = Action.async{
 
@@ -88,11 +95,11 @@ class HomeController @Inject()(carAdverts: CarAdverts, fuels:Fuels, mcc: Message
 
   def insertTest = Action.async {
     //val uuid = TimeBasedUUID(java.util.UUID).toString
-    //val uuid =  Generators.timeBasedGenerator().generate()
+    val uuid =  Generators.timeBasedGenerator().generate()
     val sdf = new SimpleDateFormat("yyyy-MM-dd")
     val date = sdf.format(new Date())
     //    carAdverts.insert(CarAdvert(uuid , "Audi A4 Avant", "gasoline",1000, true, None, None )).map{
-    carAdverts.insert(CarAdvert("Audi A4 Avant", "gasoline", 1000)).map {
+    carAdverts.insert(CarAdvert(uuid.toString, "Audi A4 Avant", "gasoline", 1000)).map {
       case Some(c:CarAdvert) => Ok(s"already exists = ${c.toString}")
       case None => Ok("cool")
     }

@@ -1,12 +1,20 @@
 @import dbs.models.CarAdvert
-@(carAdvertForm: Form[CarAdvert], listCarAdvert:Seq[CarAdvert])(implicit request: MessagesRequestHeader)
+@import play.api.libs.json.JsValue
+@import play.api.libs.json.JsResult
+@(maxSize:Int)(implicit request: MessagesRequestHeader)
+@* @(listCarAdvert:Seq[CarAdvert])(implicit request: MessagesRequestHeader)*@
 @* Created by DongHee Kim on 2019-05-08 오후 7:49. *@
+
+@scripts = {
+    <script src="@routes.Assets.versioned("javascripts/list.js")" type="text/javascript"></script>
+   @* <script data-main="@routes.Assets.versioned("javascripts/list")" type="text/javascript" src="@routes.Assets.versioned("lib/requirejs/require.js")">*@
+}
 
 @main() {
     <div class="container">
         <div class="row my-2">
             <div class="col-sm">
-                <small>Number of registered vehicles: 9999</small>
+                <small>Number of registered vehicles: @maxSize</small>
             </div>
             <div class="col-sm">
                @* <button type="button" class="float-right btn btn-warning btn-sm" data-toggle="modal" data-target="#createCarAdvertModal">Create</button>*@
@@ -16,7 +24,6 @@
     </div>
     <div class="table-responsive-sm">
         <table class="table">
-
             <thead class="thead-light">
                 <tr>
                     <th scope="col">#</th>
@@ -29,46 +36,29 @@
                     <th scope="col">Edit</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Audi A4 Avant</td>
-                    <td>Gasoline</td>
-                    <td>$100,000</td>
-                    <td>Yes</td>
-                    <td>999999km</td>
-                    <td>2019-05-05</td>
-                    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
-                        Edit</button></td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Audi A4 Avant</td>
-                    <td>Gasoline</td>
-                    <td>$100,000</td>
-                    <td>Yes</td>
-                    <td>999999km</td>
-                    <td>2019-05-05</td>
-                    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
-                        Edit</button></td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>Audi A4 Avant</td>
-                    <td>Gasoline</td>
-                    <td>$100,000</td>
-                    <td>Yes</td>
-                    <td>999999km</td>
-                    <td>2019-05-05</td>
-                    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
-                        Edit</button></td>
-                </tr>
+            <tbody id="caradverts-tbody">
 
+  @*              @for(carAdvert <- listCarAdvert){
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>@carAdvert.title</td>
+                        <td>@carAdvert.fuel</td>
+                        <td>@carAdvert.price</td>
+                        <td>@{carAdvert.newThing match {
+                            case true => "Yes"
+                            case false => "No"
+                            }}</td>
+                        <td>@carAdvert.mileage</td>
+                        <td>@carAdvert.firstRegistration</td>
+                        <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
+                        Edit</button></td>
+                    </tr>
+                }*@
             </tbody>
         </table>
     </div>
 
-    @tags.create_car_advert_modal(carAdvertForm)
+   @* @tags.create_car_advert_modal(carAdvertForm)*@
     @tags.edit_car_advert_modal()
     @* <div class="starter-template">
     <h1>Bootstrap starter template</h1>

@@ -1,7 +1,5 @@
 package dbs.models
 
-import com.fasterxml.uuid.Generators
-
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:07.
   */
@@ -16,7 +14,7 @@ case class CarAdvert(
                     )
 
 object CarAdvert {
-  def apply(
+/*  def apply(
              id:String,
              title: String,
              fuel: String,
@@ -24,25 +22,17 @@ object CarAdvert {
              newThing: Boolean,
              mileage: Option[Int],
              firstRegistration: Option[String]
-           ): CarAdvert = new CarAdvert(Generators.timeBasedGenerator().generate().toString, title, fuel, price, newThing, mileage, firstRegistration)
+           ): CarAdvert = new CarAdvert(Generators.timeBasedGenerator().generate().toString, title, fuel, price, newThing, mileage, firstRegistration)*/
 
   def apply(
+             id: String,
              title: String,
              fuel: String,
              price: Int,
              newThing: Boolean = true,
              mileage: Option[Int] = None,
              firstRegistration: Option[String] = None
-           ): CarAdvert = new CarAdvert(Generators.timeBasedGenerator().generate().toString, title, fuel, price, newThing, mileage, firstRegistration)
-
-  def unapply(arg: CarAdvert): Option[(String
-    , String
-    , String
-    , Int
-    , Boolean
-    , Option[Int]
-    , Option[String]
-    )] = Some((arg.id, arg.title, arg.fuel, arg.price, arg.newThing, arg.mileage, arg.firstRegistration))
+           ): CarAdvert = new CarAdvert(id, title, fuel, price, newThing, mileage, firstRegistration)
 
   /*def create(title: String, fuel: String, price: Int) = {
      CarAdvert(Generators.timeBasedGenerator().generate().toString, title, fuel, price, true, None, None)
@@ -57,15 +47,3 @@ object CarAdvert {
    }*/
 }
 
-/*
-case class CarAdvert(
-                      id:String,
-                      title:String,
-                      fuel:String,
-                      price:Int,
-                      newThing:Boolean,
-                      mileage:Int,
-                      firstRegistration:Date
-                    )
-*/
-//implicit val toJson = Json.format[CarAdvert]

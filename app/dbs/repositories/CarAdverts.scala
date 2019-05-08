@@ -26,6 +26,11 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
     def exec = ScanamoAsync.exec(client)(ops)
   }
 
+  def getMaxSize= {
+    val r = table.scan().map(_.size)
+    r.exec
+  }
+
   def isExist(id:String) = {
     table.query('id -> id).map(_.exists(_.isRight)).exec
   }

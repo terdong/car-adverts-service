@@ -1,13 +1,16 @@
-requirejs.config({
-    baseUrl: '/assets/lib', // 'js' 라는 폴더를 기본 폴더로 설정한다.
+/*requirejs.config({
+    baseUrl: '/assets', // 'js' 라는 폴더를 기본 폴더로 설정한다.
 
     paths:{
-        'jquery':'jquery/jquery.min',
-        'bootstrap': 'bootstrap/js/bootstrap.bundle.min'
+        'jquery':'lib/jquery/jquery.min',
+        'bootstrap': 'lib/bootstrap/js/bootstrap.bundle.min'
     },
     shim:{
         'bootstrap': {
             deps: ['jquery']
+        },
+        jquery : {
+            exports: '$'
         }
     }
 });
@@ -17,7 +20,7 @@ requirejs( [
         'bootstrap'
     ],
 
-    function ($,bootstrap) {
+    function ($,bootstrap) {*/
         $(document).ready(function () {
             //var jQuery = $;
             //alert($().jquery);
@@ -64,6 +67,6 @@ requirejs( [
                 })
             }
         });
-    }
+ /*   }
 );
-
+*/
