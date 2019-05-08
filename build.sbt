@@ -1,12 +1,10 @@
-version := "0.0.5"
+version := "0.0.6"
 
 name := "car_adverts_service"
       
 lazy val `car_adverts_service` = (project in file(".")).enablePlugins(PlayScala)
 
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-      
-resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
+resolvers += Resolver.sonatypeRepo("snapshots")
       
 scalaVersion := "2.12.8"
 
@@ -18,6 +16,9 @@ libraryDependencies ++= Seq(
   "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8"
 )
 
-unmanagedResourceDirectories in Test += baseDirectory.value / "target/web/public/test"
+scalacOptions ++= Seq(
+  "-feature",
+  "-deprecation",
+  "-Xfatal-warnings"
+)
 
-      
