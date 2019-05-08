@@ -9,6 +9,9 @@ import dbs.repositories.CarAdverts
 import javax.inject._
 import org.scanamo.error.ScanamoError
 import play.api.Logging
+import play.api.data._
+import play.api.data.Forms._
+import play.api.data.validation.Constraints._
 import play.api.mvc._
 import views.html.defaultpages.error
 
@@ -19,8 +22,20 @@ import scala.concurrent.{ExecutionContext, Future}
   * application's home page.
   */
 @Singleton
-class HomeController @Inject()(carAdverts: CarAdverts, cc: ControllerComponents) extends AbstractController(cc) with Logging {
+class HomeController @Inject()(carAdverts: CarAdverts, mcc: MessagesControllerComponents) extends MessagesAbstractController(mcc)  with Logging {
   implicit val ec = ExecutionContext.global
+
+  val carAdvertForm = Form(
+    mapping(
+      "id" -> text,
+      "title" -> nonEmptyText,
+      "fuel"  -> nonEmptyText,
+      "price" -> number.verifying(min(0)),
+      "newThing" -> boolean,
+      "mileage" -> optional(number.verifying(min(0))),
+      "firstRegistration" -> optional(nonEmptyText)
+    )(CarAdvert.apply)(CarAdvert.unapply)
+  )
 
   /**
     * Create an Action to render an HTML page with a welcome message.
@@ -28,19 +43,19 @@ class HomeController @Inject()(carAdverts: CarAdverts, cc: ControllerComponents)
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index = Action {
-    logger.debug("index")
+  def index = Action {implicit request =>
+    //logger.debug("index")
 
-    Ok(views.html.index("Your new application is ready."))
+    Ok(views.html.pages.list(carAdvertForm, List.empty[CarAdvert]))
   }
 
-  def insert = ???
+  def create = TODO
 
-  def edit = ???
+  def edit = TODO
 
-  def delete = ???
+  def delete = TODO
 
-  def list = ???
+  def list = TODO
 
   def insertTest = Action.async {
     //val uuid = TimeBasedUUID(java.util.UUID).toString
@@ -48,7 +63,7 @@ class HomeController @Inject()(carAdverts: CarAdverts, cc: ControllerComponents)
     val sdf = new SimpleDateFormat("yyyy-MM-dd")
     val date = sdf.format(new Date())
     //    carAdverts.insert(CarAdvert(uuid , "Audi A4 Avant", "gasoline",1000, true, None, None )).map{
-    carAdverts.insert(CarAdvert.create("Audi A4 Avant", "gasoline", 1000)).map {
+    carAdverts.insert(CarAdvert("Audi A4 Avant", "gasoline", 1000)).map {
       case Some(c:CarAdvert) => Ok(s"already exists = ${c.toString}")
       case None => Ok("cool")
     }
