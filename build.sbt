@@ -1,4 +1,4 @@
-version := "0.0.7"
+version := "0.0.12"
 
 name := "car_adverts_service"
       
@@ -14,7 +14,9 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
   "org.scanamo" %% "scanamo" % "1.0.0-M9",
   "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
-  "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0"
+  "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0",
+  "org.webjars" % "bootstrap" % "4.3.1",
+  "org.webjars" % "requirejs" % "2.2.0"
 )
 
 scalacOptions ++= Seq(
@@ -23,3 +25,4 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings"
 )
 
+pipelineStages := Seq(rjs)
