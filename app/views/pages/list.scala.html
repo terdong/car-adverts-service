@@ -9,7 +9,8 @@
                 <small>Number of registered vehicles: 9999</small>
             </div>
             <div class="col-sm">
-                <button type="button" class="float-right btn btn-warning btn-sm" data-toggle="modal" data-target="#createCarAdvertModal">Create</button>
+               @* <button type="button" class="float-right btn btn-warning btn-sm" data-toggle="modal" data-target="#createCarAdvertModal">Create</button>*@
+                <a href="@routes.HomeController.createForm()" class="float-right btn btn-warning btn-sm" >Create</a>
             </div>
         </div>
     </div>
@@ -66,7 +67,6 @@
             </tbody>
         </table>
     </div>
-
 
     @tags.create_car_advert_modal(carAdvertForm)
     @tags.edit_car_advert_modal()

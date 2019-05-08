@@ -1,0 +1,88 @@
+@import dbs.models.CarAdvert
+@(carAdvertForm: Form[CarAdvert])(implicit request: MessagesRequestHeader)
+@* Created by DongHee Kim on 2019-05-08 오후 7:49. *@
+@implicitField = @{
+    helper.FieldConstructor(tags.input_layout.f)
+}
+@main() {
+    <div class="container">
+        <div class="pb-2 mb-2 border-bottom">
+            <h1>Create Car Advert</h1>
+        </div>
+        <div class="row">
+            <div class="col-sm m-2">
+            @helper.form(action = routes.HomeController.create()) {
+                <input type="hidden" name="id" value="">
+                @helper.input(carAdvertForm("title"), 'placeholder -> "Please enter the name of the vehicle.") { (id, name, value, args) =>
+                    <input type="text" class="form-control @{
+                        "is-invalid".when(value.isDefined)
+                    }" name="@name" id="@id" value="@value" @toHtmlArgs(args) required="required" >
+                }
+                @helper.input(carAdvertForm("fuel"), 'placeholder -> "Please enter the name of the vehicle.") { (id, name, value, args) =>
+                    <select class="custom-select" name="@name" id="@id" @toHtmlArgs(args)>
+
+                        @* <option selected.when(value.isEmpty)>Open this select menu</option>*@
+                        @defining(value.getOrElse("")) { v =>
+                            <option @{
+                                "selected".when(v == "Gasoline")
+                            } value="Gasoline">Gasoline</option>
+                            <option @{
+                                "selected".when(v == "Diesel")
+                            } value="Diesel">Diesel</option>
+                        }
+                        @* <option value="3">Gas</option>*@
+                    </select>
+                    @* <input type="text" class="form-control" name="@name" id="@id" @toHtmlArgs(args) required >*@
+                }
+                @helper.input(carAdvertForm("price"), 'placeholder -> "Please enter the price of the vehicle.") { (id, name, value, args) =>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">€</div>
+                        </div>
+                        <input type="number" class="form-control @{
+                            "is-invalid".when(value.isDefined)
+                        }" name="@name" id="@id" value="@value" @toHtmlArgs(args) required="required" >
+                }
+            </div>
+                @* @helper.checkbox(carAdvertForm("newThing"))*@
+                @helper.input(carAdvertForm("newThing")) { (id, name, value, args) =>
+                    <div class="custom-control custom-checkbox">
+                        @defining(value.getOrElse("false")) { b =>
+                            <input type="checkbox" class="custom-control-input" id="@id" name="@name" value="@b" @toHtmlArgs(args) >
+                        }
+                        @* <input type="checkbox" class="custom-control-input" name="@name" id="@id" value="@isChecked" @{"checked".when(isChecked==true)} @toHtmlArgs(args) >*@
+                    <label class="custom-control-label" for="@id">If it is a used car, please uncheck.</label>
+                    </div>
+                }
+                @helper.input(carAdvertForm("mileage"), 'placeholder -> "Please enter the mileage of the vehicle.") { (id, name, value, args) =>
+                    <div class="input-group">
+                        <input type="number" class="form-control @{
+                            "is-invalid".when(value.isDefined)
+                        }" name="@name" id="@id" value="@value" @toHtmlArgs(args) required="required" >
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">km</div>
+                        </div>
+                }
+            </div>
+                @helper.input(carAdvertForm("firstRegistration"), 'placeholder -> "Please enter the first registration of the vehicle.") { (id, name, value, args) =>
+                    <input type="text" class="form-control @{
+                        "is-invalid".when(value.isDefined)
+                    }" name="@name" id="@id" value="@value" @toHtmlArgs(args) required="required" >
+                }
+                @carAdvertForm.globalErrors.map { error =>
+                    <div class="alert alert-danger" role="alert">
+                        @error.messages.mkString(", ")
+                    </div>
+                }
+                <div class="row float-right">
+                    <div class="col-sm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+}

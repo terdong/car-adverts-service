@@ -1,21 +1,16 @@
 package dbs.repositories
 
 import cats.data.NonEmptyList
-import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import dbs.models.{CarAdvert, CarAdvertUpdate}
 import javax.inject.{Inject, Singleton}
-import org.scanamo.error.DynamoReadError
 import org.scanamo.ops.ScanamoOps
-import org.scanamo.{Scanamo, ScanamoAsync, Table}
+import org.scanamo.syntax._
+import org.scanamo.{ScanamoAsync, Table}
 import services.DynamoDbProvider
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import org.scanamo.query._
-import org.scanamo.syntax._
 import org.scanamo.auto._
-import cats.syntax.either._
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:06.
   */

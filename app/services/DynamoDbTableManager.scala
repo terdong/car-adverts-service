@@ -14,4 +14,5 @@ class DynamoDbTableManager @Inject()(dp:DynamoDbProvider) extends Logging{
   import dp.client
   logger.debug("DynamoDbTableManager")
   dp.createTableAfterCheck("car_advert")('id -> S)
+  dp.createTableAfterCheck("fuel")('name -> S)
 }
