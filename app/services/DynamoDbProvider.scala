@@ -2,6 +2,7 @@ package services
 
 import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
+import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.amazonaws.services.dynamodbv2.model._
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDB, AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
 import javax.inject.{Inject, Singleton}
@@ -10,6 +11,7 @@ import play.api.inject.ApplicationLifecycle
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType._
 
 /**
   * Created by DongHee Kim on 2019-05-08 오전 1:53.
@@ -30,7 +32,24 @@ class DynamoDbProvider @Inject()(config: Configuration, appLifecycle: Applicatio
       .withEndpointConfiguration(new EndpointConfiguration(config.get[String]("dynamodb.endpoint"), config.get[String]("dynamodb.region")))
       .build()
 
+  def createTableAfterCheck(tableName: String)(attributes: (Symbol, ScalarAttributeType)*)(implicit client: AmazonDynamoDB) = {
+    if(!checkTable(tableName)){
+      createTable(tableName)(attributes:_*)
+    }
+  }
+
+  def getTable(tableName: String)(implicit client: AmazonDynamoDB) = {
+    val db = new DynamoDB(client)
+    db.getTable(tableName)
+  }
+
+  def checkTable(tableName: String)(implicit client: AmazonDynamoDB) = {
+    val r = client.listTables()
+    r.getTableNames.contains(tableName)
+  }
+
   def createTable(tableName: String)(attributes: (Symbol, ScalarAttributeType)*)(implicit client: AmazonDynamoDB) =
+
     client.createTable(
       attributeDefinitions(attributes),
       tableName,
