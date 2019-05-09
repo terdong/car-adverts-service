@@ -1,28 +1,57 @@
-version := "0.0.16"
+version := ""
 
 name := "car_adverts_service"
-      
-lazy val `car_adverts_service` = (project in file(".")).enablePlugins(PlayScala)
 
-resolvers += Resolver.sonatypeRepo("snapshots")
-      
-scalaVersion := "2.12.8"
+maintainer := "terdong@gmail.com"
 
-libraryDependencies ++= Seq(caffeine, ws, guice)
+lazy val server = (project in file("server")).settings(commonSettings).settings(
+  scalaJSProjects := Seq(client),
+  pipelineStages in Assets := Seq(scalaJSPipeline),
+  pipelineStages := Seq(digest, gzip),
+  scalacOptions ++= Seq(
+    "-feature",
+    "-deprecation",
+    "-Xfatal-warnings"
+  ),
+  // triggers scalaJSPipeline when using compile or continuous compilation
+  compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
+  libraryDependencies ++= Seq(
+    "com.vmunier" %% "scalajs-scripts" % "1.1.2",
+    guice,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
+    "org.scanamo" %% "scanamo" % "1.0.0-M9",
+    "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
+    "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0",
+    "org.webjars" % "bootstrap" % "4.3.1"
+  ),
+  // Compile the project before generating Eclipse files, so that generated .scala or .class files for views and routes are present
+  //EclipseKeys.preTasks := Seq(compile in Compile)
+).enablePlugins(PlayScala).dependsOn(sharedJvm)
 
-libraryDependencies ++= Seq(
-  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
-  "org.scanamo" %% "scanamo" % "1.0.0-M9",
-  "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
-  "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0",
-  "org.webjars" % "bootstrap" % "4.3.1",
-  "org.webjars" % "requirejs" % "2.2.0"
+lazy val client = (project in file("client")).settings(commonSettings).settings(
+  scalaJSUseMainModuleInitializer := true,
+  libraryDependencies ++= Seq(
+    "org.scala-js" %%% "scalajs-dom" % "0.9.7"
+  )
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
+  dependsOn(sharedJs)
+
+import sbt.Keys.publishArtifact
+import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
+
+lazy val shared = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("shared"))
+  .settings(commonSettings)
+lazy val sharedJvm = shared.jvm
+lazy val sharedJs = shared.js
+
+lazy val commonSettings = Seq(
+  scalaVersion := "2.12.8",
+  organization := "com.teamgehem",
+  sources in(Compile, doc) := Seq.empty,
+  publishArtifact in(Compile, packageDoc) := false
 )
 
-scalacOptions ++= Seq(
-  "-feature",
-  "-deprecation",
-  "-Xfatal-warnings"
-)
-
-pipelineStages := Seq(rjs)
+// loads the server project at sbt startup
+onLoad in Global := (onLoad in Global).value andThen { s: State => "project server" :: s }
