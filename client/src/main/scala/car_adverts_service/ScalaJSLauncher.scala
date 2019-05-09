@@ -1,6 +1,6 @@
 package car_adverts_service
 
-import car_adverts_service.routes.Home
+import car_adverts_service.routes._
 import org.scalajs.dom._
 import RouteManager._
 
@@ -13,7 +13,9 @@ object ScalaJSLauncher{
   def main(args :Array[String]): Unit = {
 /*    console.log(window.location.hash)
     console.log(window.location.pathname)*/
+    registerRoute(Global)
     registerRoute(Home)
+    registerRoute(Create)
 
     runRoute(window.location.pathname);
   }

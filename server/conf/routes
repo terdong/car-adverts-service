@@ -27,4 +27,4 @@ GET         /updateTest               controllers.HomeController.updateTest
 
 GET         /deleteTest               controllers.HomeController.deleteTest
 
-#GET        /delete              controllers.HomeController.delete
+GET         /javascriptRoutes         controllers.HomeController.javascriptRoutes

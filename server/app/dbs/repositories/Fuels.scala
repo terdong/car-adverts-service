@@ -1,6 +1,6 @@
 package dbs.repositories
 
-import dbs.models.Fuel
+import car_adverts_service.shared.models.Fuel
 import javax.inject.{Inject, Singleton}
 import org.scanamo.ops.ScanamoOps
 import org.scanamo.syntax._

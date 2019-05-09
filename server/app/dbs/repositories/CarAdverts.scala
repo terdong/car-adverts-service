@@ -1,7 +1,8 @@
 package dbs.repositories
 
+import car_adverts_service.shared.models.CarAdvert
 import cats.data.NonEmptyList
-import dbs.models.{CarAdvert, CarAdvertUpdate}
+import dbs.models.CarAdvertUpdate
 import javax.inject.{Inject, Singleton}
 import org.scanamo.ops.ScanamoOps
 import org.scanamo.syntax._

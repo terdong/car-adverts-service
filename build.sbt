@@ -16,8 +16,9 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   // triggers scalaJSPipeline when using compile or continuous compilation
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
-    "com.vmunier" %% "scalajs-scripts" % "1.1.2",
+    caffeine,
     guice,
+    "com.vmunier" %% "scalajs-scripts" % "1.1.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
     "org.scanamo" %% "scanamo" % "1.0.0-M9",
     "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
@@ -31,8 +32,13 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
 lazy val client = (project in file("client")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.7"
-  )
+    "org.scala-js" %%% "scalajs-dom" % "0.9.7",
+    "com.thoughtworks.binding" %%% "dom" % "11.7.0",
+    "com.thoughtworks.binding" %%% "futurebinding" % "11.7.0",
+    "com.typesafe.play" %%% "play-json" % "2.7.2",
+    "com.lihaoyi" %%% "scalatags" % "0.6.7"
+  ),
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
 
@@ -43,6 +49,9 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("shared"))
   .settings(commonSettings)
+  .settings(
+    libraryDependencies += "com.typesafe.play" %%% "play-json" % "2.7.2"
+  )
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 

@@ -1,4 +1,6 @@
-package dbs.models
+package car_adverts_service.shared.models
+
+import play.api.libs.json.{Json, OFormat}
 
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:07.
@@ -14,6 +16,7 @@ case class CarAdvert(
                     )
 
 object CarAdvert {
+
 /*  def apply(
              id:String,
              title: String,

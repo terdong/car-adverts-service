@@ -1,4 +1,4 @@
-@import dbs.models.CarAdvert
+@import car_adverts_service.shared.models.CarAdvert
 @import play.api.libs.json.JsValue
 @import play.api.libs.json.JsResult
 @(maxSize:Int)(implicit request: MessagesRequestHeader)
@@ -23,8 +23,8 @@
         </div>
     </div>
     <div class="table-responsive-sm">
-        <table class="table">
-            <thead class="thead-light">
+        <table class="table" id="caradverts-table">
+         @*   <thead class="thead-light">
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Title</th>
@@ -37,8 +37,18 @@
                 </tr>
             </thead>
             <tbody id="caradverts-tbody">
-
-  @*              @for(carAdvert <- listCarAdvert){
+                <tr>
+                    <th scope="row">1</th>
+                    <td>title</td>
+                    <td>fuel</td>
+                    <td>price</td>
+                    <td>newThing match</td>
+                    <td>mileage</td>
+                    <td>firstRegistration</td>
+                    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
+                        Edit</button></td>
+                </tr>
+  *@@*              @for(carAdvert <- listCarAdvert){
                     <tr>
                         <th scope="row">1</th>
                         <td>@carAdvert.title</td>
@@ -53,8 +63,8 @@
                         <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
                         Edit</button></td>
                     </tr>
-                }*@
-            </tbody>
+                }*@@*
+            </tbody>*@
         </table>
     </div>
 
