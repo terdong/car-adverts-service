@@ -1,11 +1,11 @@
 package car_adverts_service.components
 
-import car_adverts_service.shared.Protocols
+import car_adverts_service.shared.{JsonResult, Protocols}
 import car_adverts_service.shared.models.CarAdvert
-import org.scalajs.dom.ext.Ajax
+import org.scalajs.dom.ext.{Ajax, AjaxException}
 import org.scalajs.dom.raw.XMLHttpRequest
-import play.api.libs.json.{JsArray, JsError, JsSuccess, JsValue, Json, OFormat, Reads}
-import org.scalajs.dom._
+import play.api.libs.json.{Format, JsArray, JsError, JsObject, JsPath, JsSuccess, JsValue, Json, JsonValidationError, OFormat, Reads}
+import org.scalajs.dom.{XMLHttpRequest, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 /**
@@ -21,6 +21,20 @@ trait SimpleAjax{
       case s:JsSuccess[Protocol] => s.asOpt
       case e:JsError => {
         console.error(s"An invalid data has been received.\nerror: ${e.toString}")
+        console.log(xhr.responseText)
+        window.alert(xhr.responseText)
+        e.asOpt
+      }
+    }
+  }
+
+  def resultByJsonResult(xhr: XMLHttpRequest)(implicit jsonFormat : OFormat[JsonResult]) = {
+    Json.parse(xhr.responseText).validate[JsonResult] match {
+      case s:JsSuccess[JsonResult] => s.asOpt
+      case e:JsError => {
+        console.error(s"An invalid data has been received.\nerror: ${e.toString}")
+        console.log(xhr.responseText)
+        window.alert(xhr.responseText)
         e.asOpt
       }
     }
@@ -36,12 +50,40 @@ trait SimpleAjax{
     }
   }
 
+  def recoverByCommon: PartialFunction[Throwable, XMLHttpRequest] = {
+    case AjaxException(xhr: XMLHttpRequest) => {
+      console.error(s"status = ${xhr.statusText}")
+      /*  if(xhr.responseText != null) {
+          console.error(s"status = ${xhr.statusText}, message= ${xhr.responseText}")
+          Toast(Json.prettyPrint(Json.parse(xhr.responseText)).replaceAll("[\\[\\]\\{\\}\\\"]", ""))
+        }else{*/
+      //}
+      xhr
+    }
+  }
+
   def resultByJaValue(xhr:XMLHttpRequest) = {
     Json.parse(xhr.responseText)
   }
 
   def post[Protocol](url:String, data:Protocol)(implicit jsonFormat : OFormat[Protocol]) = {
     Ajax.post(
+      url = url,
+      data = Json.prettyPrint(Json.toJson(data)),
+      headers = headers
+    ).map(resultByCommon(_))
+  }
+
+  def put[Protocol](url:String, data:Protocol)(implicit jsonFormat : OFormat[Protocol], jsonFormat2 : OFormat[JsonResult]) = {
+    Ajax.put(
+      url = url,
+      data = Json.prettyPrint(Json.toJson(data)),
+      headers = headers
+    ).recover(recoverByCommon).map(resultByJsonResult(_))
+  }
+
+  def delete[Protocol](url:String, data:Protocol)(implicit jsonFormat : OFormat[Protocol]) = {
+    Ajax.delete(
       url = url,
       data = Json.prettyPrint(Json.toJson(data)),
       headers = headers

@@ -1,6 +1,7 @@
 package car_adverts_service.shared.models
 
-import play.api.libs.json.{Json, OFormat}
+import java.text.SimpleDateFormat
+import java.util.Date
 
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:07.

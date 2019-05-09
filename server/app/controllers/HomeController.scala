@@ -3,9 +3,9 @@ package controllers
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import car_adverts_service.shared.models.CarAdvert
+import car_adverts_service.shared.{JsonResult, Protocols}
+import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
 import com.fasterxml.uuid.Generators
-import dbs.models.CarAdvertUpdate
 import dbs.repositories.{CarAdverts, Fuels}
 import javax.inject._
 import org.scanamo.error.ScanamoError
@@ -13,12 +13,14 @@ import play.api.Logging
 import play.api.cache.Cached
 import play.api.data.Forms._
 import play.api.data._
-import play.api.data.validation.Constraints._
+import play.api.libs.json.{Format, JsError, JsPath, JsValue, Json, JsonValidationError, Reads}
 import play.api.mvc._
 import play.api.routing.JavaScriptReverseRouter
 
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.data.validation.Constraints._
 
+import scala.util.Try
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
@@ -27,13 +29,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeController @Inject()(carAdverts: CarAdverts,
                                fuels: Fuels,
                                cached: Cached,
-                               mcc: MessagesControllerComponents) extends MessagesAbstractController(mcc) with Logging {
+                               mcc: MessagesControllerComponents) extends MessagesAbstractController(mcc) with Logging with Protocols {
   implicit val ec = ExecutionContext.global
 
-  import play.api.libs.json._
-
-  implicit val carAdvertFormat = Json.format[CarAdvert]
-  implicit val residentReads = Json.reads[CarAdvert]
   val carAdvertForm = Form(
     mapping(
       "id" -> text,
@@ -47,6 +45,33 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       !(!carAdvert.newThing && (carAdvert.mileage.isEmpty || carAdvert.firstRegistration.isEmpty))
     )
   )
+
+
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json.Reads._
+  val format: SimpleDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd")
+  val dateReads = verifying[String]{ str =>
+    val result = Try(format.parse(str)).isSuccess
+    result
+  }
+  val carAdvertReadsForServer = (
+    (JsPath \ "id").read[String](minLength[String](1)) and
+      (JsPath \ "title").read[String](minLength[String](1)) and
+      (JsPath \ "fuel").read[String](minLength[String](1)) and
+      (JsPath \ "price").read[Int](min[Int](0)) and
+      (JsPath \ "newThing").read[Boolean] and
+      (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
+      (JsPath \ "firstRegistration").readNullable[String](dateReads.map(str => format.format(format.parse(str))))
+    )(CarAdvert.apply _)
+
+  val carAdvertUpdateReadsForServer = (
+      (JsPath \ "title").readNullable[String](minLength[String](1)) and
+      (JsPath \ "fuel").readNullable[String](minLength[String](1)) and
+      (JsPath \ "price").readNullable[Int](min[Int](0)) and
+      (JsPath \ "newThing").readNullable[Boolean] and
+      (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
+      (JsPath \ "firstRegistration").readNullable[String](dateReads.map(str => format.format(format.parse(str))))
+    )(CarAdvertToUpdate.apply _)
 
   /**
     * Create an Action to render an HTML page with a welcome message.
@@ -62,6 +87,25 @@ class HomeController @Inject()(carAdverts: CarAdverts,
 
   def createForm = Action { implicit request =>
     Ok(views.html.pages.create_form(carAdvertForm))
+  }
+
+  def edit(id:String) = Action(parse.json).async{ implicit request =>
+    val r = request.body.validate[CarAdvertToUpdate](carAdvertUpdateReadsForServer).fold(
+      (errors: Seq[(JsPath, Seq[JsonValidationError])]) =>
+        Future.successful(BadRequest(JsError.toJson(errors))),
+      carAdvertUpdate =>
+        carAdverts.update(id, carAdvertUpdate).map{
+          case Some(Right(c: CarAdvert)) => Ok(Json.toJson(JsonResult(true, Some(Json.toJson(c)))))
+          case None => logger.warn("Nothing to change."); Ok(Json.toJson(JsonResult(false)))
+          case Some(Left(error: ScanamoError)) =>
+          logger.error(error.toString)
+          carAdverts.delete(id)
+          InternalServerError(Json.toJson(JsonResult(false)))
+         // result.map(c => logger.debug(c.id))
+        }
+          //Future.successful(Ok(Json.toJson(JsonResult(true))))
+    )
+    r
   }
 
   def create = Action.async { implicit request =>
@@ -80,11 +124,8 @@ class HomeController @Inject()(carAdverts: CarAdverts,
         }
       }
     )
-
     result
   }
-
-  def edit = TODO
 
   def delete = TODO
 
@@ -114,16 +155,15 @@ class HomeController @Inject()(carAdverts: CarAdverts,
 
   def updateTest = Action.async {
     val id = "abcd2"
-    val carAdvertToUpdate = CarAdvertUpdate(id, title = Some("Tico"))
-
+    val carAdvertToUpdate = CarAdvertToUpdate(title = Some("Tico"))
     carAdverts.isExist(id).flatMap {
-      case true => carAdverts.update(carAdvertToUpdate).map {
+      case true => carAdverts.update(id,carAdvertToUpdate).map {
         //case false => InternalServerError("Not found target by the key.")
         case Some(Right(c: CarAdvert)) => Ok(s"updated = ${c.toString}.")
         case None => Ok("Nothing to change.")
         case Some(Left(error: ScanamoError)) =>
           logger.error(error.toString)
-          carAdverts.delete(carAdvertToUpdate.id)
+          carAdverts.delete(id)
           InternalServerError("Not found target by the key.")
         case _ => InternalServerError("bad")
       }
@@ -143,7 +183,8 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       Ok(
         JavaScriptReverseRouter("jsRoutes")(
           routes.javascript.Assets.versioned,
-          routes.javascript.HomeController.list
+          routes.javascript.HomeController.list,
+          routes.javascript.HomeController.edit
         )
       ).as("text/javascript")
     }

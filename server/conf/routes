@@ -18,6 +18,8 @@ GET         /caradverts               controllers.HomeController.list
 
 GET         /caradverts/create        controllers.HomeController.createForm
 
+PUT         /caradverts/:id           controllers.HomeController.edit(id:String)
+
 +nocsrf
 POST        /caradverts               controllers.HomeController.create
 

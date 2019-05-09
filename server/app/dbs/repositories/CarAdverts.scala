@@ -1,8 +1,7 @@
 package dbs.repositories
 
-import car_adverts_service.shared.models.CarAdvert
+import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
 import cats.data.NonEmptyList
-import dbs.models.CarAdvertUpdate
 import javax.inject.{Inject, Singleton}
 import org.scanamo.ops.ScanamoOps
 import org.scanamo.syntax._
@@ -52,18 +51,17 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
     r.exec
   }
 
-  def update(ca: CarAdvertUpdate)= {
+  def update(id:String, ca: CarAdvertToUpdate)= {
     val updates = List(
       ca.title.map(t => set('title -> t)),
       ca.fuel.map(f => set('fuel -> f)),
       ca.price.map(p => set('price -> p)),
-      ca.fuel.map(f => set('fuel -> f)),
       ca.newThing.map(n => set('newThing -> n)),
       ca.mileage.map(m => set('mileage -> m)),
       ca.firstRegistration.map(f => set('firstregistration -> f))
     )
     val r = NonEmptyList.fromList(updates.flatten).map(ups =>
-      table.update('id -> ca.id, ups.reduce)
+      table.update('id -> id, ups.reduce)
     ).map(_.exec)
     Future.sequence(Option.option2Iterable(r)).map(_.headOption)
   }

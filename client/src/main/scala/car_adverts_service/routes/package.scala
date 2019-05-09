@@ -1,6 +1,7 @@
 package car_adverts_service
 import java.util.concurrent.atomic.AtomicInteger
 
+import com.thoughtworks.binding.Binding.BindingSeq
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom.document
 import org.scalajs.dom._
@@ -59,6 +60,11 @@ package object routes {
   }
 
   def bindRenderedDom(renderedDom:Binding[Node], parentNode:Element = document.body) = {
+    val createdDiv= div(id := s"div-${divCreatingCount.getAndIncrement()}-for-binding").render
+    parentNode.appendChild(createdDiv)
+    dom.render(createdDiv, renderedDom)
+  }
+  def bindSeqRenderedDom(renderedDom:Binding[BindingSeq[Node]], parentNode:Element = document.body) = {
     val createdDiv= div(id := s"div-${divCreatingCount.getAndIncrement()}-for-binding").render
     parentNode.appendChild(createdDiv)
     dom.render(createdDiv, renderedDom)
