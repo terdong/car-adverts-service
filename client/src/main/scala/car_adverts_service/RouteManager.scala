@@ -1,5 +1,6 @@
 package car_adverts_service
 
+import car_adverts_service.routes.bases.Route
 import org.scalajs.dom.console
 
 import scala.collection.mutable
@@ -14,13 +15,13 @@ object RouteManager {
   private val regex = "/[0-9]{1,}/".r
   private val replacingStr = "/#/"
 
-  private val notFoundRoute = new Route {
-    override def execute: Unit = {
+  private val notFoundRoute = new Route{
+    override val routeNameSeq: Seq[String] = Seq("error")
+
+    override def execute = {
       console.warn("could not find the js code for that route")
       //window.location.href = "/"
     }
-
-    override val routeNameSeq: Seq[String] = Seq("error")
   }
 
   val routeMap = mutable.HashMap.empty[String, Route]
