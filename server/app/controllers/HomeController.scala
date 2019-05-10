@@ -5,6 +5,7 @@ import java.util.Date
 
 import car_adverts_service.shared.{JsonResult, Protocols}
 import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
+import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import com.fasterxml.uuid.Generators
 import dbs.repositories.{CarAdverts, Fuels}
 import javax.inject._
@@ -127,7 +128,12 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     result
   }
 
-  def delete = TODO
+  def delete(id:String) = Action.async{
+    carAdverts.delete(id).map{ deleteItemResult: DeleteItemResult =>
+      logger.debug(deleteItemResult.toString)
+      Ok(Json.toJson(JsonResult(true)))
+    }
+  }
 
   def list = Action.async { implicit request =>
     carAdverts.getList.map { list =>
@@ -178,16 +184,17 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     }
   }
 
-  def javascriptRoutes = cached("javascriptRoutes") {
+  def javascriptRoutes = //cached("javascriptRoutes") {
     Action { implicit request =>
       Ok(
         JavaScriptReverseRouter("jsRoutes")(
           routes.javascript.Assets.versioned,
           routes.javascript.HomeController.list,
-          routes.javascript.HomeController.edit
+          routes.javascript.HomeController.edit,
+          routes.javascript.HomeController.delete
         )
       ).as("text/javascript")
     }
-  }
+  //}
 
 }

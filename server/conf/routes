@@ -4,29 +4,31 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET         /                         controllers.HomeController.index
+GET           /                         controllers.HomeController.index
 # An example controller showing how to use dependency injection
-GET         /count                    controllers.CountController.count
+GET           /count                    controllers.CountController.count
 # An example controller showing how to write asynchronous code
-GET         /message                  controllers.AsyncController.message
+GET           /message                  controllers.AsyncController.message
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file             controllers.Assets.versioned(path="/public", file: Asset)
+GET           /assets/*file             controllers.Assets.versioned(path="/public", file: Asset)
 
 
-GET         /caradverts               controllers.HomeController.list
+GET           /caradverts               controllers.HomeController.list
 
-GET         /caradverts/create        controllers.HomeController.createForm
+GET           /caradverts/create        controllers.HomeController.createForm
 
-PUT         /caradverts/:id           controllers.HomeController.edit(id:String)
+PUT           /caradverts/:id           controllers.HomeController.edit(id:String)
+
+DELETE        /caradverts/:id           controllers.HomeController.delete(id:String)
 
 +nocsrf
-POST        /caradverts               controllers.HomeController.create
+POST          /caradverts               controllers.HomeController.create
 
-GET         /insertTest               controllers.HomeController.insertTest
+GET           /insertTest               controllers.HomeController.insertTest
 
-GET         /updateTest               controllers.HomeController.updateTest
+GET           /updateTest               controllers.HomeController.updateTest
 
-GET         /deleteTest               controllers.HomeController.deleteTest
+GET           /deleteTest               controllers.HomeController.deleteTest
 
-GET         /javascriptRoutes         controllers.HomeController.javascriptRoutes
+GET           /javascriptRoutes         controllers.HomeController.javascriptRoutes

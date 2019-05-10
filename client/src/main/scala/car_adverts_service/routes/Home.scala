@@ -19,6 +19,7 @@ import scala.scalajs.js.Dynamic.{global => g}
 class Home extends SimpleAjax with Protocols with SimpleAlert {
   val carAdvertsListRoute = g.jsRoutes.controllers.HomeController.list().url.toString
   val carAdvertsEditRoute = { id: String => g.jsRoutes.controllers.HomeController.edit(id).url.toString }
+  val carAdvertsDeleteRoute = { id: String => g.jsRoutes.controllers.HomeController.delete(id).url.toString }
 
   console.log("Hello Home")
 
@@ -129,9 +130,11 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                   sendingData.value
                 ).map {
                   case Left(errorMessage) =>
+                    //showInfoAlert("Failed to edit this car advert.")
                     showErrorAlert(errorMessage)
                   case Right(jr: JsonResult) =>
                     console.log(jr.isSuccess)
+                    showInfoAlert("Success to edit this car advert.")
                     jr.message.map{ jv =>
                       jv.validate[CarAdvert].map(ca => carAdvertList.value(carAdvertList.value.indexWhere(_.id == ca.id)) = ca)
                     }
@@ -212,7 +215,17 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger mr-auto" onclick={e: Event => showErrorAlert("Error!!!!") }>Delete</button>
+              <button type="button" class="btn btn-danger mr-auto" onclick={e: Event =>
+             delete[JsonResult](carAdvertsDeleteRoute(carAdvert.id)).map{
+               case Some(jr:JsonResult) =>
+                 console.log(jr.isSuccess)
+                 val carAdvertBuffer = carAdvertList.value
+                 carAdvertBuffer.remove(carAdvertBuffer.indexWhere(_.id == carAdvert.id))
+                 showInfoAlert("Success to delete this car advert.")
+                 modal.map(_.hide())
+               case None => showErrorAlert("Failed to delete this car advert.")
+             }
+              }>Delete</button>
               <button type="button" class="btn btn-secondary" data:data-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary" data:form="editForm">Edit</button>
             </div>

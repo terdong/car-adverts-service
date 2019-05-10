@@ -84,6 +84,13 @@ trait SimpleAjax{
     ).map(resultByCommon(_))
   }
 
+  def delete[Protocol](url:String)(implicit jsonFormat : OFormat[Protocol]) = {
+    Ajax.delete(
+      url = url,
+      headers = headers
+    ).recover(recoverByCommon).map(resultByCommon(_))
+  }
+
   def getList[Protocol](url:String)(implicit jsonFormat : OFormat[Protocol]) = {
     Ajax.get(
       url = url,
