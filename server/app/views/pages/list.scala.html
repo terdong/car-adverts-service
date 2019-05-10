@@ -2,7 +2,6 @@
 @import play.api.libs.json.JsValue
 @import play.api.libs.json.JsResult
 @(maxSize:Int)(implicit request: MessagesRequestHeader)
-@* @(listCarAdvert:Seq[CarAdvert])(implicit request: MessagesRequestHeader)*@
 @* Created by DongHee Kim on 2019-05-08 오후 7:49. *@
 
 @main() {
@@ -16,7 +15,6 @@
                 <small>Number of registered vehicles: @maxSize</small>
             </div>
             <div class="col-sm-1">
-               @* <button type="button" class="float-right btn btn-warning btn-sm" data-toggle="modal" data-target="#createCarAdvertModal">Create</button>*@
                 <a href="@routes.HomeController.generateRandomCarAdverts100()" class="float-right btn btn-warning btn-sm" >Generate100</a>
             </div>
             <div class="col-sm-1">
@@ -26,54 +24,6 @@
     </div>
     <div class="table-responsive-sm">
         <table class="table" id="caradverts-table">
-         @*   <thead class="thead-light">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Fuel</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">New</th>
-                    <th scope="col">Mileage</th>
-                    <th scope="col">First Registration</th>
-                    <th scope="col">Edit</th>
-                </tr>
-            </thead>
-            <tbody id="caradverts-tbody">
-                <tr>
-                    <th scope="row">1</th>
-                    <td>title</td>
-                    <td>fuel</td>
-                    <td>price</td>
-                    <td>newThing match</td>
-                    <td>mileage</td>
-                    <td>firstRegistration</td>
-                    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
-                        Edit</button></td>
-                </tr>
-  *@@*              @for(carAdvert <- listCarAdvert){
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>@carAdvert.title</td>
-                        <td>@carAdvert.fuel</td>
-                        <td>@carAdvert.price</td>
-                        <td>@{carAdvert.newThing match {
-                            case true => "Yes"
-                            case false => "No"
-                            }}</td>
-                        <td>@carAdvert.mileage</td>
-                        <td>@carAdvert.firstRegistration</td>
-                        <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#editCarAdvertModal" data-whatever="@@mdo">
-                        Edit</button></td>
-                    </tr>
-                }*@@*
-            </tbody>*@
         </table>
     </div>
-
-   @* @tags.create_car_advert_modal(carAdvertForm)*@
-   @* @tags.edit_car_advert_modal()*@
-    @* <div class="starter-template">
-    <h1>Bootstrap starter template</h1>
-    <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
-    </div>*@
 }

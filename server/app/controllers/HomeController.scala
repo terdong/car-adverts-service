@@ -93,6 +93,23 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     }
   }
 
+  def create = Action.async { implicit request =>
+    val result = carAdvertForm.bindFromRequest.fold(
+      formWithErrors => {
+        fuels.getList.map{ list =>
+          BadRequest(views.html.pages.create_form(formWithErrors, list))
+        }
+      },
+      carAdvertData => {
+        carAdverts.insert(carAdvertData.copy(id = Generators.timeBasedGenerator().generate().toString)).map {
+          case Some(c) => Ok(c.toString)
+          case None => Redirect(routes.HomeController.index)
+        }
+      }
+    )
+    result
+  }
+
   def edit(id: String) = Action(parse.json).async { implicit request =>
     val result = request.body.validate[CarAdvertToUpdate](carAdvertUpdateReadsForServer).fold(
       (errors: Seq[(JsPath, Seq[JsonValidationError])]) =>
@@ -106,23 +123,6 @@ class HomeController @Inject()(carAdverts: CarAdverts,
             carAdverts.delete(id)
             InternalServerError(Json.toJson(JsonResult(false)))
         }
-    )
-    result
-  }
-
-  def create = Action.async { implicit request =>
-    val result = carAdvertForm.bindFromRequest.fold(
-      formWithErrors => {
-        fuels.getList.map{ list =>
-          BadRequest(views.html.pages.create_form(formWithErrors, list))
-        }
-      },
-      carAdvertData => {
-        carAdverts.insert(carAdvertData).map {
-          case Some(c) => Ok(c.toString)
-          case None => Redirect(routes.HomeController.index)
-        }
-      }
     )
     result
   }

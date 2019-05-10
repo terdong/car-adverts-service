@@ -19,7 +19,8 @@
             <div class="row">
                 <div class="col-sm m-2">
                 @helper.form(action = routes.HomeController.create()) {
-                    <input type="hidden" name="id" value="@Generators.timeBasedGenerator().generate().toString">
+                   @* <input type="hidden" name="id" value="@Generators.timeBasedGenerator().generate().toString">*@
+                    <input type="hidden" name="id" value="">
                     @helper.input(carAdvertForm("title"), 'placeholder -> "Please enter the name of the vehicle.") { (id, name, value, args) =>
                         <input type="text" class="form-control @{
                             "is-invalid".when(value.isDefined)
