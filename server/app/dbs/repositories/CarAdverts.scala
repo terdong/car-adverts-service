@@ -89,8 +89,4 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
   def delete(id:String) = {
     table.delete('id -> id).exec
   }
-
-
-
-
 }

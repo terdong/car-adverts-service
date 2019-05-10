@@ -13,6 +13,8 @@ GET           /message                         controllers.AsyncController.messa
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                    controllers.Assets.versioned(path="/public", file: Asset)
 
+## Car Advert Page
+
 GET           /caradverts                      controllers.HomeController.list
 
 GET           /caradverts/filter/:price        controllers.HomeController.listFilteredByPrice(price:Int)
@@ -38,5 +40,15 @@ GET           /insertTest                      controllers.HomeController.insert
 GET           /updateTest                      controllers.HomeController.updateTest
 
 GET           /deleteTest                      controllers.HomeController.deleteTest
+
+## Fuel Page
+
+GET           /fuels                           controllers.FuelController.index
+
+POST          /fuels                           controllers.FuelController.insert
+
+DELETE        /fuels/:id                       controllers.FuelController.delete(id:String)
+
+GET           /fuels/list                      controllers.FuelController.list
 
 GET           /javascriptRoutes                controllers.HomeController.javascriptRoutes

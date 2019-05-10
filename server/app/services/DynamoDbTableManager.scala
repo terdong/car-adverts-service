@@ -13,7 +13,7 @@ class DynamoDbTableManager @Inject()(dp:DynamoDbProvider) extends Logging{
   import dp.client
   logger.debug("DynamoDbTableManager")
 //  dp.createTableAfterCheck("car_advert")('id -> S)
-  dp.createTableWithIndexAfterCheck("car_advert", "price-index")('id -> S, 'title ->S)('price -> N)
+  dp.createTableWithIndexAfterCheck("car_advert", "price-index")('id -> S)('price -> N)
   //dp.createTableWithLocalIndexAfterCheck("car_advert", "newThing-index")('id -> S, 'title ->S)('price -> N)
   dp.createTableAfterCheck("fuel")('name -> S)
 }

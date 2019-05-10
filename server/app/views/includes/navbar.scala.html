@@ -11,6 +11,9 @@
             <li class="nav-item active">
                 <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
             </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="@routes.FuelController.index()">Fuel</a>
+            </li>
             @* <li class="nav-item">
             <a class="nav-link" href="#">Link</a>
             </li>
@@ -30,7 +33,7 @@
             <div class="row">
                 <div class="col-sm-7">
                     <form class="form-inline my-2 my-lg-0 float-right" id="filterForm">
-                        <input class="form-control mr-sm-2" type="number" min="0" placeholder="Filter Price" aria-label="Search" name="carPriceToFilter" required="required">
+                        <input class="form-control mr-sm-2" type="number" min="0" placeholder="Filter Higher Price" aria-label="Search" name="carPriceToFilter" required="required">
                         <button class="btn btn-secondary my-2 my-sm-0" type="submit">Filter</button>
                     </form>
                 </div>

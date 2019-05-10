@@ -16,6 +16,7 @@ object ScalaJSLauncher{
     registerRoute(Global)
     registerRoute(Home)
     registerRoute(Create)
+    registerRoute(Fuels)
 
     runRoute(window.location.pathname);
   }

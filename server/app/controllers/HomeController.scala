@@ -48,7 +48,6 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     )
   )
 
-
   import play.api.libs.functional.syntax._
   import play.api.libs.json.Reads._
 
@@ -57,7 +56,8 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     val result = Try(format.parse(str)).isSuccess
     result
   }
-  val carAdvertReadsForServer = (
+
+/*  val carAdvertReadsForServer = (
     (JsPath \ "id").read[String](minLength[String](1)) and
       (JsPath \ "title").read[String](minLength[String](1)) and
       (JsPath \ "fuel").read[String](minLength[String](1)) and
@@ -65,7 +65,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       (JsPath \ "newThing").read[Boolean] and
       (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
       (JsPath \ "firstRegistration").readNullable[String](dateReads.map(str => format.format(format.parse(str))))
-    ) (CarAdvert.apply _)
+    ) (CarAdvert.apply _)*/
 
   val carAdvertUpdateReadsForServer = (
     (JsPath \ "title").readNullable[String](minLength[String](1)) and
@@ -87,8 +87,10 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     carAdverts.getMaxSize.map(maxSize => Ok(views.html.pages.list(maxSize)))
   }
 
-  def createForm = Action { implicit request =>
-    Ok(views.html.pages.create_form(carAdvertForm))
+  def createForm = Action.async { implicit request =>
+    fuels.getList.map{ list =>
+      Ok(views.html.pages.create_form(carAdvertForm, list))
+    }
   }
 
   def edit(id: String) = Action(parse.json).async { implicit request =>
@@ -111,7 +113,9 @@ class HomeController @Inject()(carAdverts: CarAdverts,
   def create = Action.async { implicit request =>
     val result = carAdvertForm.bindFromRequest.fold(
       formWithErrors => {
-        Future.successful(BadRequest(views.html.pages.create_form(formWithErrors)))
+        fuels.getList.map{ list =>
+          BadRequest(views.html.pages.create_form(formWithErrors, list))
+        }
       },
       carAdvertData => {
         carAdverts.insert(carAdvertData).map {
@@ -257,7 +261,10 @@ class HomeController @Inject()(carAdverts: CarAdverts,
           routes.javascript.HomeController.listSortedByField,
           routes.javascript.HomeController.search,
           routes.javascript.HomeController.edit,
-          routes.javascript.HomeController.delete
+          routes.javascript.HomeController.delete,
+          routes.javascript.FuelController.list,
+          routes.javascript.FuelController.insert,
+          routes.javascript.FuelController.delete
         )
       ).as("text/javascript")
     }

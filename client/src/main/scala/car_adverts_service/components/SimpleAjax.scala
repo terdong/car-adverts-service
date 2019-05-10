@@ -66,7 +66,15 @@ trait SimpleAjax {
       url = url,
       data = Json.prettyPrint(Json.toJson(data)),
       headers = headers
-    ).map(resultByCommon(_))
+    ).recover(recoverByCommon).map(resultByCommon(_))
+  }
+
+  def postWithJsonResult[Protocol](url: String, data: Protocol)(implicit jsonFormat: OFormat[Protocol], jsonFormat2: OFormat[JsonResult]) = {
+    Ajax.post(
+      url = url,
+      data = Json.prettyPrint(Json.toJson(data)),
+      headers = headers
+    ).recover(recoverByCommon).map(resultByJsonResult(_))
   }
 
   def put[Protocol](url: String, data: Protocol)(implicit jsonFormat: OFormat[Protocol], jsonFormat2: OFormat[JsonResult]) = {
@@ -82,6 +90,14 @@ trait SimpleAjax {
       url = url,
       headers = headers
     ).recover(recoverByCommon).map(resultByCommon(_))
+  }
+
+  def delete[Protocol](url: String, data: Protocol)(implicit jsonFormat: OFormat[Protocol], jsonFormat2: OFormat[JsonResult]) = {
+    Ajax.delete(
+      url = url,
+      data = Json.prettyPrint(Json.toJson(data)),
+      headers = headers
+    ).recover(recoverByCommon).map(resultByJsonResult(_))
   }
 
   def getList[Protocol](url: String)(implicit jsonFormat: OFormat[Protocol]) = {

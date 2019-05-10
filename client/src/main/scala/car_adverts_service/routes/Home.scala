@@ -3,7 +3,7 @@ package car_adverts_service.routes
 import car_adverts_service.components.{SimpleAjax, SimpleAlert}
 import car_adverts_service.facades.Modal
 import car_adverts_service.routes.bases._
-import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
+import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate, Fuel}
 import car_adverts_service.shared.{JsonResult, Protocols}
 import com.thoughtworks.binding.Binding.{BindingSeq, Constants, Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
@@ -24,11 +24,13 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
   val carAdvertsSearchRoute = {id: String => g.jsRoutes.controllers.HomeController.search(id).url.toString }
   val carAdvertsEditRoute = { id: String => g.jsRoutes.controllers.HomeController.edit(id).url.toString }
   val carAdvertsDeleteRoute = { id: String => g.jsRoutes.controllers.HomeController.delete(id).url.toString }
+  val fuelListRoute = g.jsRoutes.controllers.FuelController.list().url.toString
 
   console.log("Hello Home")
 
   val carAdvertList = Vars.empty[CarAdvert]
   val carAdvertForEditModal = Var[Option[CarAdvert]](None)
+  val fuelList = Vars.empty[Fuel]
 
   getElementSafelyById[HTMLFormElement]("searchForm").map{ form =>
     form.onsubmit = {e:Event =>
@@ -63,7 +65,6 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
     }
   }
 
-
   getList[CarAdvert](carAdvertsListRoute).map {
     case Some(list) =>
       carAdvertList.value ++= list
@@ -71,6 +72,11 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
         dom.render(el, bindCarAdvertList(carAdvertList))
       }
     //      console.log(list.mkString("\n"))
+  }
+
+  getList[Fuel](fuelListRoute).map{
+    case Some(list) =>
+      fuelList.value ++= list
   }
 
   bindRenderedDom(renderEditModal(carAdvertForEditModal))
@@ -186,8 +192,12 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                   <label for="message-text" class="col-form-label">Fuel</label>
                   <select class="custom-select" name="fuel" id="fuel"
                           onchange={event: Event => sendingData.value = sendingData.value.copy(fuel = Some(fuel.value.toLowerCase))}>
-                    <option selected={carAdvert.fuel=="gasoline"} value="gasoline">Gasoline</option>
-                    <option selected={carAdvert.fuel=="diesel"} value="diesel">Diesel</option>
+                    {
+                    val carAdvertFuel = carAdvert.fuel
+                    for(fuel <- fuelList)yield{
+                      <option selected={carAdvertFuel==fuel.name} value={fuel.name}>{fuel.name.capitalize}</option>
+                      }
+                    }
                   </select>
                 </div>
                 <div class="form-group">

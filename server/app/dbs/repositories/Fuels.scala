@@ -30,7 +30,7 @@ class Fuels @Inject()(val dp: DynamoDbProvider) {
   }
 
   def getList = {
-    val r  = table.scan.map(_.flatMap(_.toOption))
+    val r  = table.scan.map(_.flatMap(_.toOption).sortBy(_.name))
     r.exec
   }
 
@@ -42,11 +42,6 @@ class Fuels @Inject()(val dp: DynamoDbProvider) {
 
   def insert(f:Fuel) = {
     val r = table.put(f).map(_.flatMap(_.toOption))
-    r.exec
-  }
-
-  def update(name:String, fuel: Fuel)= {
-    val r = table.update('name ->name, set('name->fuel.name)).map(_.toOption)
     r.exec
   }
 
