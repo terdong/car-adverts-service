@@ -1,6 +1,6 @@
 package car_adverts_service.routes
 
-import car_adverts_service.components.SimpleAjax
+import car_adverts_service.components.{SimpleAjax, SimpleAlert}
 import car_adverts_service.facades.Modal
 import car_adverts_service.routes.bases._
 import car_adverts_service.shared.{JsonResult, Protocols}
@@ -9,7 +9,6 @@ import com.thoughtworks.binding.Binding.{BindingSeq, Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom._
 import org.scalajs.dom.html.Input
-import play.api.libs.json.{JsError, JsPath, JsSuccess, Json, JsonValidationError}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js.Dynamic.{global => g}
@@ -17,7 +16,7 @@ import scala.scalajs.js.Dynamic.{global => g}
 /**
   * Created by DongHee Kim on 2019-05-09 오전 6:08.
   */
-class Home extends SimpleAjax with Protocols {
+class Home extends SimpleAjax with Protocols with SimpleAlert {
   val carAdvertsListRoute = g.jsRoutes.controllers.HomeController.list().url.toString
   val carAdvertsEditRoute = { id: String => g.jsRoutes.controllers.HomeController.edit(id).url.toString }
 
@@ -31,6 +30,7 @@ class Home extends SimpleAjax with Protocols {
 
   val carAdvertList = Vars.empty[CarAdvert]
   val carAdvertForEditModal = Var[Option[CarAdvert]](None)
+
 
   getList[CarAdvert](carAdvertsListRoute).map {
     case Some(list) =>
@@ -48,6 +48,9 @@ class Home extends SimpleAjax with Protocols {
   getElementSafelyById("editCarAdvertModal").map { el =>
     modal = Some(new Modal(el))
   }
+
+  bindRenderedDom(renderAlerts(),"listAlert")
+
 
   @dom
   def bindCarAdvertList(carAdvertList: Vars[CarAdvert]): Binding[BindingSeq[Node]] = {
@@ -125,9 +128,11 @@ class Home extends SimpleAjax with Protocols {
                   carAdvertsEditRoute(carAdvert.id),
                   sendingData.value
                 ).map {
-                  case Some(result) =>
-                    console.log(result.isSuccess)
-                    result.message.map{ jv =>
+                  case Left(errorMessage) =>
+                    showErrorAlert(errorMessage)
+                  case Right(jr: JsonResult) =>
+                    console.log(jr.isSuccess)
+                    jr.message.map{ jv =>
                       jv.validate[CarAdvert].map(ca => carAdvertList.value(carAdvertList.value.indexWhere(_.id == ca.id)) = ca)
                     }
                     modal.map(_.hide())
@@ -200,16 +205,23 @@ class Home extends SimpleAjax with Protocols {
                 </div>
                 <div class="form-group">
                   <label for="message-text" class="col-form-label">First Registration</label>
-                  <input type="text" class="form-control" id="firstRegistration" name="firstRegistration" value={carAdvert.firstRegistration.getOrElse("")} data:required="required"
+                  <input type="date" class="form-control" id="firstRegistration" name="firstRegistration" value={carAdvert.firstRegistration.getOrElse("")} data:required="required"
                          oninput={event: Event => sendingData.value = sendingData.value.copy(firstRegistration = Some(firstRegistration.value))}
                          disabled={sendingData.bind.newThing.getOrElse(carAdvert.newThing)}/>
                 </div>
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger mr-auto" onclick={e: Event =>}>Delete</button>
+              <button type="button" class="btn btn-danger mr-auto" onclick={e: Event => showErrorAlert("Error!!!!") }>Delete</button>
               <button type="button" class="btn btn-secondary" data:data-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary" data:form="editForm">Edit</button>
+            </div>
+            <div class="container">
+              <div class="row">
+                <div class="col-sm">
+                  {renderAlerts().bind}
+                </div>
+              </div>
             </div>
           </div>
         case None => <!-- empty content -->

@@ -7,6 +7,7 @@ import org.scalajs.dom.document
 import org.scalajs.dom._
 import org.scalajs.dom.raw.{Element, Node}
 import scalatags.JsDom.all._
+
 /**
   * Created by DongHee Kim on 2019-05-09 오후 5:07.
   */
@@ -54,6 +55,11 @@ package object routes {
 
   var divCreatingCount = new AtomicInteger()
   def bindRenderedDom(renderedDom:Binding[Node], parentId:String) = {
+    val createdDiv= div(id := s"div-${divCreatingCount.getAndIncrement()}-for-binding").render
+    document.getElementById(parentId).appendChild(createdDiv)
+    dom.render(createdDiv, renderedDom)
+  }
+  def bindSeqRenderedDom(renderedDom:Binding[BindingSeq[Node]], parentId:String) = {
     val createdDiv= div(id := s"div-${divCreatingCount.getAndIncrement()}-for-binding").render
     document.getElementById(parentId).appendChild(createdDiv)
     dom.render(createdDiv, renderedDom)

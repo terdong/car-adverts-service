@@ -1,11 +1,9 @@
 package car_adverts_service.components
 
-import car_adverts_service.shared.{JsonResult, Protocols}
-import car_adverts_service.shared.models.CarAdvert
+import car_adverts_service.shared.JsonResult
 import org.scalajs.dom.ext.{Ajax, AjaxException}
-import org.scalajs.dom.raw.XMLHttpRequest
-import play.api.libs.json.{Format, JsArray, JsError, JsObject, JsPath, JsSuccess, JsValue, Json, JsonValidationError, OFormat, Reads}
 import org.scalajs.dom.{XMLHttpRequest, _}
+import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 /**
@@ -22,7 +20,7 @@ trait SimpleAjax{
       case e:JsError => {
         console.error(s"An invalid data has been received.\nerror: ${e.toString}")
         console.log(xhr.responseText)
-        window.alert(xhr.responseText)
+        //window.alert(xhr.responseText)
         e.asOpt
       }
     }
@@ -30,12 +28,13 @@ trait SimpleAjax{
 
   def resultByJsonResult(xhr: XMLHttpRequest)(implicit jsonFormat : OFormat[JsonResult]) = {
     Json.parse(xhr.responseText).validate[JsonResult] match {
-      case s:JsSuccess[JsonResult] => s.asOpt
+      case s:JsSuccess[JsonResult] => Right(s.get)
       case e:JsError => {
         console.error(s"An invalid data has been received.\nerror: ${e.toString}")
         console.log(xhr.responseText)
-        window.alert(xhr.responseText)
-        e.asOpt
+        //window.alert(xhr.responseText)
+        //e.asOpt
+        Left(xhr.responseText)
       }
     }
   }
@@ -53,11 +52,6 @@ trait SimpleAjax{
   def recoverByCommon: PartialFunction[Throwable, XMLHttpRequest] = {
     case AjaxException(xhr: XMLHttpRequest) => {
       console.error(s"status = ${xhr.statusText}")
-      /*  if(xhr.responseText != null) {
-          console.error(s"status = ${xhr.statusText}, message= ${xhr.responseText}")
-          Toast(Json.prettyPrint(Json.parse(xhr.responseText)).replaceAll("[\\[\\]\\{\\}\\\"]", ""))
-        }else{*/
-      //}
       xhr
     }
   }
