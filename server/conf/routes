@@ -13,17 +13,19 @@ GET           /message                  controllers.AsyncController.message
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file             controllers.Assets.versioned(path="/public", file: Asset)
 
-
 GET           /caradverts               controllers.HomeController.list
 
 GET           /caradverts/create        controllers.HomeController.createForm
++nocsrf
+POST          /caradverts               controllers.HomeController.create
+
+GET           /caradverts/              controllers.HomeController.search(id:String = "")
+
+GET           /caradverts/:id           controllers.HomeController.search(id:String)
 
 PUT           /caradverts/:id           controllers.HomeController.edit(id:String)
 
 DELETE        /caradverts/:id           controllers.HomeController.delete(id:String)
-
-+nocsrf
-POST          /caradverts               controllers.HomeController.create
 
 GET           /insertTest               controllers.HomeController.insertTest
 

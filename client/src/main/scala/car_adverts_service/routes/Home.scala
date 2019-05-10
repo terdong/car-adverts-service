@@ -8,7 +8,8 @@ import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
 import com.thoughtworks.binding.Binding.{BindingSeq, Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom._
-import org.scalajs.dom.html.Input
+import org.scalajs.dom.html.{Form, Input}
+import org.scalajs.dom.raw.HTMLFormElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js.Dynamic.{global => g}
@@ -18,6 +19,7 @@ import scala.scalajs.js.Dynamic.{global => g}
   */
 class Home extends SimpleAjax with Protocols with SimpleAlert {
   val carAdvertsListRoute = g.jsRoutes.controllers.HomeController.list().url.toString
+  val carAdvertsSearchRoute = {id: String => g.jsRoutes.controllers.HomeController.search(id).url.toString }
   val carAdvertsEditRoute = { id: String => g.jsRoutes.controllers.HomeController.edit(id).url.toString }
   val carAdvertsDeleteRoute = { id: String => g.jsRoutes.controllers.HomeController.delete(id).url.toString }
 
@@ -32,6 +34,29 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
   val carAdvertList = Vars.empty[CarAdvert]
   val carAdvertForEditModal = Var[Option[CarAdvert]](None)
 
+  getElementSafelyById[HTMLFormElement]("searchForm").map{ form =>
+    form.onsubmit = {e:Event =>
+      e.preventDefault()
+      val id = form.querySelector("input").asInstanceOf[Input].value
+      get[JsonResult](carAdvertsSearchRoute(id)).map{
+        case Some(jr: JsonResult) =>
+          jr.isSuccess match{
+            case true =>
+              jr.message.map{
+                _.validate[CarAdvert].map{ carAdvert =>
+                  carAdvertList.value.clear()
+                  carAdvertList.value += carAdvert
+                }
+              }
+            case false =>
+              jr.message.map(_.validate[String].map { url =>
+                console.log(s"url = $url")
+                document.location.href = url
+              }).getOrElse(showErrorAlert("Not found the Car Advert by Id"))
+          }
+      }
+    }
+  }
 
   getList[CarAdvert](carAdvertsListRoute).map {
     case Some(list) =>

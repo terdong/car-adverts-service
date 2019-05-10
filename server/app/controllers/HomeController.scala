@@ -3,9 +3,8 @@ package controllers
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import car_adverts_service.shared.{JsonResult, Protocols}
 import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
-import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
+import car_adverts_service.shared.{JsonResult, Protocols}
 import com.fasterxml.uuid.Generators
 import dbs.repositories.{CarAdverts, Fuels}
 import javax.inject._
@@ -14,13 +13,12 @@ import play.api.Logging
 import play.api.cache.Cached
 import play.api.data.Forms._
 import play.api.data._
-import play.api.libs.json.{Format, JsError, JsPath, JsValue, Json, JsonValidationError, Reads}
+import play.api.data.validation.Constraints._
+import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
 import play.api.mvc._
 import play.api.routing.JavaScriptReverseRouter
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.data.validation.Constraints._
-
 import scala.util.Try
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -81,7 +79,6 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     * a path of `/`.
     */
   def index = Action.async { implicit request =>
-    //logger.debug("index")
     //    Ok(views.html.pages.list(List.empty[CarAdvert]))
     carAdverts.getMaxSize.map(maxSize => Ok(views.html.pages.list(maxSize)))
   }
@@ -90,8 +87,21 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     Ok(views.html.pages.create_form(carAdvertForm))
   }
 
+  def search(id:String) = Action.async{
+    if(id.isEmpty){
+      Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.index().url))))))
+    }else {
+      carAdverts.findById(id).map {
+        case Some(carAdvert) =>
+          Ok(Json.toJson(JsonResult(true, Some(Json.toJson(carAdvert)))))
+        case None =>
+          BadRequest(Json.toJson(JsonResult(false)))
+      }
+    }
+  }
+
   def edit(id:String) = Action(parse.json).async{ implicit request =>
-    val r = request.body.validate[CarAdvertToUpdate](carAdvertUpdateReadsForServer).fold(
+    val result = request.body.validate[CarAdvertToUpdate](carAdvertUpdateReadsForServer).fold(
       (errors: Seq[(JsPath, Seq[JsonValidationError])]) =>
         Future.successful(BadRequest(JsError.toJson(errors))),
       carAdvertUpdate =>
@@ -102,23 +112,17 @@ class HomeController @Inject()(carAdverts: CarAdverts,
           logger.error(error.toString)
           carAdverts.delete(id)
           InternalServerError(Json.toJson(JsonResult(false)))
-         // result.map(c => logger.debug(c.id))
         }
-          //Future.successful(Ok(Json.toJson(JsonResult(true))))
     )
-    r
+    result
   }
 
   def create = Action.async { implicit request =>
     val result = carAdvertForm.bindFromRequest.fold(
       formWithErrors => {
-        // binding failure, you retrieve the form containing errors:
         Future.successful(BadRequest(views.html.pages.create_form(formWithErrors)))
       },
       carAdvertData => {
-        /* binding success, you get the actual value. */
-        /*val newUser = models.User(userData.name, userData.age)
-        val id      = models.User.create(newUser)*/
         carAdverts.insert(carAdvertData).map {
           case Some(c) => Ok(c.toString)
           case None => Redirect(routes.HomeController.index)
@@ -159,7 +163,6 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       case Some(c: CarAdvert) => Ok(s"already exists = ${c.toString}")
       case None => Ok("cool")
     }
-    //Future.successful(Ok(""))
   }
 
   def updateTest = Action.async {
@@ -193,6 +196,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
         JavaScriptReverseRouter("jsRoutes")(
           routes.javascript.Assets.versioned,
           routes.javascript.HomeController.list,
+          routes.javascript.HomeController.search,
           routes.javascript.HomeController.edit,
           routes.javascript.HomeController.delete
         )

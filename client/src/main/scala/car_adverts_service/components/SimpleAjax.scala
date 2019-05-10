@@ -6,18 +6,19 @@ import org.scalajs.dom.{XMLHttpRequest, _}
 import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
 /**
   * Created by DongHee Kim on 2019-05-09 오후 6:15.
   */
-trait SimpleAjax{
+trait SimpleAjax {
 
   lazy val headers = Map("Content-Type" -> "application/json", "Csrf-Token" -> "sksms3ehrd6lfrkrh9tlvek")
   lazy val defaultHeaders = Map("Csrf-Token" -> "sksms3ehrd6lfrkrh9tlvek")
 
-  def resultByCommon[Protocol](xhr: XMLHttpRequest)(implicit jsonFormat : OFormat[Protocol]) = {
+  def resultByCommon[Protocol](xhr: XMLHttpRequest)(implicit jsonFormat: OFormat[Protocol]) = {
     Json.parse(xhr.responseText).validate[Protocol] match {
-      case s:JsSuccess[Protocol] => s.asOpt
-      case e:JsError => {
+      case s: JsSuccess[Protocol] => s.asOpt
+      case e: JsError => {
         console.error(s"An invalid data has been received.\nerror: ${e.toString}")
         console.log(xhr.responseText)
         //window.alert(xhr.responseText)
@@ -26,10 +27,10 @@ trait SimpleAjax{
     }
   }
 
-  def resultByJsonResult(xhr: XMLHttpRequest)(implicit jsonFormat : OFormat[JsonResult]) = {
+  def resultByJsonResult(xhr: XMLHttpRequest)(implicit jsonFormat: OFormat[JsonResult]) = {
     Json.parse(xhr.responseText).validate[JsonResult] match {
-      case s:JsSuccess[JsonResult] => Right(s.get)
-      case e:JsError => {
+      case s: JsSuccess[JsonResult] => Right(s.get)
+      case e: JsError => {
         console.error(s"An invalid data has been received.\nerror: ${e.toString}")
         console.log(xhr.responseText)
         //window.alert(xhr.responseText)
@@ -39,10 +40,10 @@ trait SimpleAjax{
     }
   }
 
-  def resultWithList[Protocol](xhr: XMLHttpRequest)(implicit jsonFormat : OFormat[Protocol]) = {
+  def resultWithList[Protocol](xhr: XMLHttpRequest)(implicit jsonFormat: OFormat[Protocol]) = {
     Json.parse(xhr.responseText).validate[Seq[Protocol]] match {
-      case s:JsSuccess[Seq[Protocol]] => s.asOpt
-      case e:JsError => {
+      case s: JsSuccess[Seq[Protocol]] => s.asOpt
+      case e: JsError => {
         console.error(s"An invalid data has been received.\nerror: ${e.toString}")
         e.asOpt
       }
@@ -56,11 +57,11 @@ trait SimpleAjax{
     }
   }
 
-  def resultByJaValue(xhr:XMLHttpRequest) = {
+  def resultByJaValue(xhr: XMLHttpRequest) = {
     Json.parse(xhr.responseText)
   }
 
-  def post[Protocol](url:String, data:Protocol)(implicit jsonFormat : OFormat[Protocol]) = {
+  def post[Protocol](url: String, data: Protocol)(implicit jsonFormat: OFormat[Protocol]) = {
     Ajax.post(
       url = url,
       data = Json.prettyPrint(Json.toJson(data)),
@@ -68,7 +69,7 @@ trait SimpleAjax{
     ).map(resultByCommon(_))
   }
 
-  def put[Protocol](url:String, data:Protocol)(implicit jsonFormat : OFormat[Protocol], jsonFormat2 : OFormat[JsonResult]) = {
+  def put[Protocol](url: String, data: Protocol)(implicit jsonFormat: OFormat[Protocol], jsonFormat2: OFormat[JsonResult]) = {
     Ajax.put(
       url = url,
       data = Json.prettyPrint(Json.toJson(data)),
@@ -76,37 +77,31 @@ trait SimpleAjax{
     ).recover(recoverByCommon).map(resultByJsonResult(_))
   }
 
-  def delete[Protocol](url:String, data:Protocol)(implicit jsonFormat : OFormat[Protocol]) = {
-    Ajax.delete(
-      url = url,
-      data = Json.prettyPrint(Json.toJson(data)),
-      headers = headers
-    ).map(resultByCommon(_))
-  }
-
-  def delete[Protocol](url:String)(implicit jsonFormat : OFormat[Protocol]) = {
+  def delete[Protocol](url: String)(implicit jsonFormat: OFormat[Protocol]) = {
     Ajax.delete(
       url = url,
       headers = headers
     ).recover(recoverByCommon).map(resultByCommon(_))
   }
 
-  def getList[Protocol](url:String)(implicit jsonFormat : OFormat[Protocol]) = {
+  def getList[Protocol](url: String)(implicit jsonFormat: OFormat[Protocol]) = {
     Ajax.get(
       url = url,
       headers = defaultHeaders
     ).map(resultWithList(_))
   }
-  def get[Protocol](url:String)(implicit jsonFormat : OFormat[Protocol]) = {
+
+  def get[Protocol](url: String)(implicit jsonFormat: OFormat[Protocol]) = {
     Ajax.get(
       url = url,
       headers = defaultHeaders
-    ).map(resultByCommon(_))
+    ).recover(recoverByCommon).map(resultByCommon(_))
   }
-/*  def get(url:String) = {
-    Ajax.get(
-      url = url,
-      headers = defaultHeaders
-    ).map(resultByJaValue(_))
-  }*/
+
+  /*  def get(url:String) = {
+      Ajax.get(
+        url = url,
+        headers = defaultHeaders
+      ).map(resultByJaValue(_))
+    }*/
 }
