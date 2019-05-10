@@ -129,9 +129,12 @@ class HomeController @Inject()(carAdverts: CarAdverts,
   }
 
   def delete(id:String) = Action.async{
-    carAdverts.delete(id).map{ deleteItemResult: DeleteItemResult =>
-      logger.debug(deleteItemResult.toString)
-      Ok(Json.toJson(JsonResult(true)))
+    carAdverts.isExist(id).flatMap{
+      case true =>
+        carAdverts.delete(id).map{ deleteItemResult =>
+        Ok(Json.toJson(JsonResult(true)))
+      }
+      case false => Future.successful(BadRequest(Json.toJson(JsonResult(false))))
     }
   }
 
