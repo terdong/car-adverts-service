@@ -21,6 +21,7 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
   val client = dp.client
 
   val table = Table[CarAdvert]("car_advert")
+  val priceIndex = table.index("price-index")
 
   implicit class ScanamoAsyncExec[A](val ops : ScanamoOps[A]){
     def exec = ScanamoAsync.exec(client)(ops)
@@ -31,12 +32,22 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
     r.exec
   }
 
+  def getListSortByField[F](fieldF : CarAdvert => F)(implicit ord: Ordering[F]) = {
+    val r  = priceIndex.scan().map(_.flatMap(_.toOption).sortBy(fieldF)(ord.reverse))
+    r.exec
+  }
+
+  def getListFilterByPrice(price:Int) = {
+    val r  = priceIndex.filter('price >= price).scan().map(_.flatMap(_.toOption).sortBy(_.price)(Ordering[Int].reverse))
+    r.exec
+  }
+
   def isExist(id:String) = {
     table.query('id -> id).map(_.exists(_.isRight)).exec
   }
 
   def getList = {
-    val r  = table.scan.map(_.flatMap(_.toOption))
+    val r  = table.scan.map(_.flatMap(_.toOption).sortBy(_.id))
     r.exec
   }
 
@@ -48,6 +59,11 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
 
   def insert(c:CarAdvert) = {
     val r = table.put(c).map(_.flatMap(_.toOption))
+    r.exec
+  }
+
+  def insertAll(set:Set[CarAdvert]) = {
+    val r = table.putAll(set)
     r.exec
   }
 

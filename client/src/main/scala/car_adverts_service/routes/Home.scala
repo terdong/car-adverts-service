@@ -3,12 +3,12 @@ package car_adverts_service.routes
 import car_adverts_service.components.{SimpleAjax, SimpleAlert}
 import car_adverts_service.facades.Modal
 import car_adverts_service.routes.bases._
-import car_adverts_service.shared.{JsonResult, Protocols}
 import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
-import com.thoughtworks.binding.Binding.{BindingSeq, Var, Vars}
+import car_adverts_service.shared.{JsonResult, Protocols}
+import com.thoughtworks.binding.Binding.{BindingSeq, Constants, Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom._
-import org.scalajs.dom.html.{Form, Input}
+import org.scalajs.dom.html.Input
 import org.scalajs.dom.raw.HTMLFormElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,17 +19,13 @@ import scala.scalajs.js.Dynamic.{global => g}
   */
 class Home extends SimpleAjax with Protocols with SimpleAlert {
   val carAdvertsListRoute = g.jsRoutes.controllers.HomeController.list().url.toString
+  val carAdvertsListFilteredByPriceRoute = {price:Int => g.jsRoutes.controllers.HomeController.listFilteredByPrice(price).url.toString}
+  val carAdvertsListSortedByField = {field:String => g.jsRoutes.controllers.HomeController.listSortedByField(field).url.toString}
   val carAdvertsSearchRoute = {id: String => g.jsRoutes.controllers.HomeController.search(id).url.toString }
   val carAdvertsEditRoute = { id: String => g.jsRoutes.controllers.HomeController.edit(id).url.toString }
   val carAdvertsDeleteRoute = { id: String => g.jsRoutes.controllers.HomeController.delete(id).url.toString }
 
   console.log("Hello Home")
-
-  /*  getElementSafelyById("editCarAdvertModal").map { el =>
-      el.addEventListener("show.bs.modal", { e: Event =>
-        console.log("Clicked")
-      })
-    }*/
 
   val carAdvertList = Vars.empty[CarAdvert]
   val carAdvertForEditModal = Var[Option[CarAdvert]](None)
@@ -49,18 +45,27 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                 }
               }
             case false =>
-              jr.message.map(_.validate[String].map { url =>
-                console.log(s"url = $url")
-                document.location.href = url
-              }).getOrElse(showErrorAlert("Not found the Car Advert by Id"))
+              jr.message.map(_.validate[String].map (document.location.href = _).getOrElse(showErrorAlert("Not found the Car Advert by Id")))
           }
       }
     }
   }
 
+  getElementSafelyById[HTMLFormElement]("filterForm").map{ form =>
+    form.onsubmit = {e:Event =>
+      e.preventDefault()
+      val price = form.querySelector("input").asInstanceOf[Input].value.toInt
+      getList[CarAdvert](carAdvertsListFilteredByPriceRoute(price)).map{
+        case Some(list) =>
+          carAdvertList.value.clear()
+          carAdvertList.value ++= list
+      }
+    }
+  }
+
+
   getList[CarAdvert](carAdvertsListRoute).map {
     case Some(list) =>
-
       carAdvertList.value ++= list
       getElementSafelyById("caradverts-table").map { el =>
         dom.render(el, bindCarAdvertList(carAdvertList))
@@ -80,29 +85,35 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
 
   @dom
   def bindCarAdvertList(carAdvertList: Vars[CarAdvert]): Binding[BindingSeq[Node]] = {
+    val sortEvent = {field:String => e:Event =>
+      getList[CarAdvert](carAdvertsListSortedByField(field)).map{
+        case Some(list) =>
+          carAdvertList.value.clear()
+          carAdvertList.value ++= list
+      }}
     <thead class="thead-light">
       <tr>
         <th data:scope="col">#</th>
-        <th data:scope="col">Title</th>
-        <th data:scope="col">Fuel</th>
-        <th data:scope="col">Price</th>
-        <th data:scope="col">New</th>
-        <th data:scope="col">Mileage</th>
-        <th data:scope="col">First Registration</th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("title")}><ins>Title↓</ins></th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("fuel")}><ins>Fuel↓</ins></th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("price")}><ins>Price↓</ins></th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("newThing")}><ins>New↓</ins></th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("mileage")}><ins>Mileage↓</ins></th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("firstRegistration")}><ins>First Registration↓</ins></th>
         <th data:scope="col">Edit</th>
       </tr>
     </thead>
       <tbody>
-        {for (carAdvert <- carAdvertList) yield {
-        renderTr(carAdvert).bind
-      }}
+        {
+          Constants(carAdvertList.bind.zipWithIndex: _*).map(v => renderTr(v._1, v._2 + 1)).map(_.bind)
+        }
       </tbody>
   }
 
   @dom
-  def renderTr(carAdvert: CarAdvert) = {
+  def renderTr(carAdvert: CarAdvert, index: Int) = {
     <tr>
-      <th data:scope="row">1</th>
+      <th data:scope="row">{index.toString}</th>
       <td>
         {carAdvert.title}
       </td>
@@ -167,9 +178,7 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                 }}>
                 <input type="hidden" name="id" value={carAdvert.id}/>
                 <div class="form-group">
-                  <label for="recipient-name" class="col-form-label">Title
-                    {sendingData.bind.toString}
-                  </label>
+                  <label for="recipient-name" class="col-form-label">Title</label>
                   <input type="text" class="form-control" id="title" name="title" value={carAdvert.title} data:required="required"
                          oninput={event: Event => sendingData.value = sendingData.value.copy(title = Some(title.value))}/>
                 </div>

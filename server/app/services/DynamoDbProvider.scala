@@ -25,6 +25,7 @@ class DynamoDbProvider @Inject()(config: Configuration, appLifecycle: Applicatio
     .withEndpointConfiguration(new EndpointConfiguration(config.get[String]("dynamodb.endpoint"), config.get[String]("dynamodb.region")))
     .build()
 
+  @Deprecated
   private def client2(): AmazonDynamoDBAsync =
     AmazonDynamoDBAsyncClient
       .asyncBuilder()
@@ -33,8 +34,20 @@ class DynamoDbProvider @Inject()(config: Configuration, appLifecycle: Applicatio
       .build()
 
   def createTableAfterCheck(tableName: String)(attributes: (Symbol, ScalarAttributeType)*)(implicit client: AmazonDynamoDB) = {
-    if(!checkTable(tableName)){
-      createTable(tableName)(attributes:_*)
+    if (!checkTable(tableName)) {
+      createTable(tableName)(attributes: _*)
+    }
+  }
+
+  def createTableWithIndexAfterCheck(tableName: String, secondaryIndexName: String)(attributes: (Symbol, ScalarAttributeType)*)(secondaryIndexAttributes: (Symbol, ScalarAttributeType)*)(implicit client: AmazonDynamoDB) = {
+    if (!checkTable(tableName)) {
+      createTableWithIndex(tableName, secondaryIndexName, attributes.toList, secondaryIndexAttributes.toList)
+    }
+  }
+
+  def createTableWithLocalIndexAfterCheck(tableName: String, localIndexName: String)(attributes: (Symbol, ScalarAttributeType)*)(secondaryIndexAttributes: (Symbol, ScalarAttributeType)*)(implicit client: AmazonDynamoDB) = {
+    if (!checkTable(tableName)) {
+      createTableWithLocalIndex(tableName, localIndexName, attributes.toList, secondaryIndexAttributes.toList)
     }
   }
 
@@ -56,6 +69,34 @@ class DynamoDbProvider @Inject()(config: Configuration, appLifecycle: Applicatio
       keySchema(attributes),
       arbitraryThroughputThatIsIgnoredByDynamoDBLocal
     )
+
+  def createTableWithLocalIndex(
+                                 tableName: String,
+                                 localIndexName: String,
+                                 primaryIndexAttributes: List[(Symbol, ScalarAttributeType)],
+                                 secondaryIndexAttributes: List[(Symbol, ScalarAttributeType)]
+                               )(implicit client: AmazonDynamoDB) = {
+
+
+    val primaryIndexSchema = keySchema(primaryIndexAttributes)
+    val localSecondaryIndex = new LocalSecondaryIndex().withIndexName(localIndexName).withKeySchema(keySchema(secondaryIndexAttributes)).withProjection(new Projection().withProjectionType(ProjectionType.ALL))
+
+    import com.amazonaws.services.dynamodbv2.model.LocalSecondaryIndex
+    import java.util
+    val localSecondaryIndexes = new util.ArrayList[LocalSecondaryIndex]
+    localSecondaryIndexes.add(localSecondaryIndex)
+
+    client.createTable(
+      new CreateTableRequest()
+        .withTableName(tableName)
+        .withAttributeDefinitions(
+          attributeDefinitions(primaryIndexAttributes ++ (secondaryIndexAttributes diff primaryIndexAttributes))
+        )
+        .withKeySchema(primaryIndexSchema)
+        .withProvisionedThroughput(arbitraryThroughputThatIsIgnoredByDynamoDBLocal)
+        .withLocalSecondaryIndexes(localSecondaryIndexes)
+    )
+  }
 
   def createTableWithIndex(
                             tableName: String,
@@ -197,7 +238,7 @@ class DynamoDbProvider @Inject()(config: Configuration, appLifecycle: Applicatio
   private val arbitraryThroughputThatIsIgnoredByDynamoDBLocal = new ProvisionedThroughput(1L, 1L)
 
   appLifecycle.addStopHook { () =>
-    client2.shutdown()
+    client.shutdown()
     Future.successful(())
   }
 

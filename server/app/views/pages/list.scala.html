@@ -20,8 +20,11 @@
             <div class="col-sm">
                 <small>Number of registered vehicles: @maxSize</small>
             </div>
-            <div class="col-sm">
+            <div class="col-sm-1">
                @* <button type="button" class="float-right btn btn-warning btn-sm" data-toggle="modal" data-target="#createCarAdvertModal">Create</button>*@
+                <a href="@routes.HomeController.generateRandomCarAdverts100()" class="float-right btn btn-warning btn-sm" >Generate100</a>
+            </div>
+            <div class="col-sm-1">
                 <a href="@routes.HomeController.createForm()" class="float-right btn btn-warning btn-sm" >Create</a>
             </div>
         </div>
