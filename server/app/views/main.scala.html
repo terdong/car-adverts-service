@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String = "Simple Car Adverts", scripts: Html = Html(""))(content: Html)
+@(title: String = "Simple Car Adverts", scripts: Html = Html(""))(content: Html)(implicit request:RequestHeader)
 
 <!DOCTYPE html>
 <html lang="en">

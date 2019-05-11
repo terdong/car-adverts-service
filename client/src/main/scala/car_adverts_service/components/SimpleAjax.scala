@@ -12,8 +12,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 trait SimpleAjax {
 
-  lazy val headers = Map("Content-Type" -> "application/json", "Csrf-Token" -> "sksms3ehrd6lfrkrh9tlvek")
-  lazy val defaultHeaders = Map("Csrf-Token" -> "sksms3ehrd6lfrkrh9tlvek")
+  // TODO: [2019-05-11 오후 11:23]  should get a cookie of the csrfToekn set by server. -DongHee Kim-
+  val csrfToken:String = "changeme"
+
+  lazy val headers = Map("Content-Type" -> "application/json", "Csrf-Token" -> csrfToken)
+  lazy val defaultHeaders = Map("Csrf-Token" -> csrfToken)
 
   def resultByCommon[Protocol](xhr: XMLHttpRequest)(implicit jsonFormat: OFormat[Protocol]) = {
     Json.parse(xhr.responseText).validate[Protocol] match {

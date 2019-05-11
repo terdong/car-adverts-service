@@ -106,7 +106,7 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
         <th data:scope="col" style="cursor:pointer" onclick={sortEvent("newThing")}><ins>New↓</ins></th>
         <th data:scope="col" style="cursor:pointer" onclick={sortEvent("mileage")}><ins>Mileage↓</ins></th>
         <th data:scope="col" style="cursor:pointer" onclick={sortEvent("firstRegistration")}><ins>First Registration↓</ins></th>
-        <th data:scope="col">Edit</th>
+        <th data:scope="col" data:colspan="2" class="text-center">Action</th>
       </tr>
     </thead>
       <tbody>
@@ -139,7 +139,21 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
         {carAdvert.firstRegistration.getOrElse("")}
       </td>
       <td>
-        <button type="button" class="btn btn-outline-info btn-sm" data:data-toggle="modal" data:data-target="#editCarAdvertModal" data:data-whatever={carAdvert.id}
+        <input type="hidden" name="carAdvertId" id="carAdvertId" value={carAdvert.id} />
+        <button type="button" class="btn btn-outline-dark btn-sm"
+                onclick={e: Event =>
+                  carAdvertId.setAttribute("type","text")
+                  carAdvertId.select()
+                  document.execCommand("copy")
+                  carAdvertId.blur()
+                  carAdvertId.setAttribute("type","hidden")
+                  val message = "Copied the id of the car advert to the clipboard."
+                  showInfoAlert(message)
+                  console.log(message)
+                  }>Copy ID</button>
+      </td>
+      <td>
+        <button type="button" class="btn btn-outline-info btn-sm" data:data-toggle="modal" data:data-target="#editCarAdvertModal"
                 onclick={e: Event =>
                   carAdvertForEditModal.value = Some(carAdvert)
                   modal.map(_.show())}>

@@ -83,9 +83,9 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index = Action.async { implicit request =>
+  def home = Action.async { implicit request =>
     //    Ok(views.html.pages.list(List.empty[CarAdvert]))
-    carAdverts.getMaxSize.map(maxSize => Ok(views.html.pages.list(maxSize)))
+    carAdverts.getMaxSize.map(maxSize => Ok(views.html.pages.home(maxSize)))
   }
 
   def createForm = Action.async { implicit request =>
@@ -104,7 +104,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       carAdvertData => {
         carAdverts.insert(carAdvertData.copy(id = Generators.timeBasedGenerator().generate().toString)).map {
           case Some(c) => Ok(c.toString)
-          case None => Redirect(routes.HomeController.index)
+          case None => Redirect(routes.HomeController.home)
         }
       }
     )
@@ -147,7 +147,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
 
   def search(id: String) = Action.async {
     if (id.isEmpty) {
-      Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.index().url))))))
+      Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.home().url))))))
     } else {
       carAdverts.findById(id).map {
         case Some(carAdvert) =>
@@ -160,7 +160,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
 
   def listFilteredByPrice(price: Int) = Action.async { implicit request =>
     if (price < 0) {
-      Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.index().url))))))
+      Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.home().url))))))
     } else {
       carAdverts.getListFilterByPrice(price).map { list =>
         val json = Json.toJson(list)
