@@ -1,4 +1,7 @@
 # RESTful-web-service_for_car-adverts
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
+[![Build Status](https://travis-ci.com/terdong/car_adverts_service.svg?token=MuLUDEzacUUisZKvqCsy&branch=master)](https://travis-ci.com/terdong/car_adverts_service)
+[![codecov](https://codecov.io/gh/terdong/car_adverts_service/branch/master/graph/badge.svg?token=5qQtnVfdvf)](https://codecov.io/gh/terdong/car_adverts_service)
 
 This is a project for demonstrating RESTful-oriented car advertising services.
 
