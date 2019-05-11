@@ -22,11 +22,13 @@ And then go to <http://localhost:9000> to see the running web application.
 
 각 이벤트들에 대해 설명하겠습니다.
 
-- 시작페이지("/")
+- 시작페이지(url: "/")
   - 등록된 자동차 광고 리스트를 보여줍니다.
+  - **Filter** 버튼은 Input Tag에 입력한 가격 이상의 차 광고만 필터링한 리스트를 보여줍니다.
+  - **Search** 버튼은 Input Tag에 입력한 ID가 
   - **Create** 버튼은 자동차 광고 생성 페이지로 이동합니다.
   - **Generate100** 버튼은 한번 클릭할 때 마다 랜덤한 자동차 광고를 100개 생성합니다.
-  - ** 
+  - **Copy ID** 버튼은 
 - 
 
 ## Controllers

@@ -47,7 +47,7 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                 }
               }
             case false =>
-              jr.message.map(_.validate[String].map (document.location.href = _).getOrElse(showErrorAlert("Not found the Car Advert by Id")))
+              showErrorAlert("Not found the Car Advert by Id")
           }
       }
     }
