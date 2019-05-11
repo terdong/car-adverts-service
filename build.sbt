@@ -1,4 +1,4 @@
-version := "0.0.38"
+version := "0.0.39"
 
 name := "car_adverts_service"
 
@@ -35,8 +35,7 @@ lazy val client = (project in file("client")).settings(commonSettings).settings(
     "org.scala-js" %%% "scalajs-dom" % "0.9.7",
     "com.thoughtworks.binding" %%% "dom" % "11.7.0",
     "com.thoughtworks.binding" %%% "futurebinding" % "11.7.0",
-    "com.typesafe.play" %%% "play-json" % "2.7.2",
-    "com.lihaoyi" %%% "scalatags" % "0.6.7"
+    "com.typesafe.play" %%% "play-json" % "2.7.2"
   ),
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
