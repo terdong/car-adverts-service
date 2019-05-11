@@ -1,8 +1,10 @@
+package sample
+
 import akka.actor.ActorSystem
 import controllers.{AsyncController, CountController}
 import org.scalatestplus.play._
-import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import services.Counter
 
 /**
