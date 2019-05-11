@@ -1,4 +1,4 @@
-version := ""
+version := "0.0.29"
 
 name := "car_adverts_service"
 

@@ -42,7 +42,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       "price" -> number.verifying(min(0)),
       "newThing" -> boolean,
       "mileage" -> optional(number.verifying(min(0))),
-      "firstRegistration" -> optional(nonEmptyText)
+      "firstRegistration" -> optional(nonEmptyText).verifying("Please enter the correct date.",_.map(dateStr => Try(format.parse(dateStr)).isSuccess).getOrElse(false))
     )(CarAdvert.apply)(CarAdvert.unapply).verifying("You must input fields!", carAdvert =>
       !(!carAdvert.newThing && (carAdvert.mileage.isEmpty || carAdvert.firstRegistration.isEmpty))
     )
@@ -57,6 +57,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     result
   }
 
+  //Can use this json validation to create a car advert.
 /*  val carAdvertReadsForServer = (
     (JsPath \ "id").read[String](minLength[String](1)) and
       (JsPath \ "title").read[String](minLength[String](1)) and
@@ -64,7 +65,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       (JsPath \ "price").read[Int](min[Int](0)) and
       (JsPath \ "newThing").read[Boolean] and
       (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
-      (JsPath \ "firstRegistration").readNullable[String](dateReads.map(str => format.format(format.parse(str))))
+      (JsPath \ "firstRegistration").readNullable[String](dateReads)
     ) (CarAdvert.apply _)*/
 
   val carAdvertUpdateReadsForServer = (
@@ -73,7 +74,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       (JsPath \ "price").readNullable[Int](min[Int](0)) and
       (JsPath \ "newThing").readNullable[Boolean] and
       (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
-      (JsPath \ "firstRegistration").readNullable[String](dateReads.map(str => format.format(format.parse(str))))
+      (JsPath \ "firstRegistration").readNullable[String](dateReads)
     ) (CarAdvertToUpdate.apply _)
 
   /**
