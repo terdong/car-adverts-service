@@ -85,6 +85,7 @@ Explains each function.
   - [scala-js-dom 0.9.7](https://github.com/scala-js/scala-js-dom)
   - [binding.scala 11.7.0](https://github.com/ThoughtWorksInc/Binding.scala) - for reactive web design
   - [bootstrap 4.3.1](https://github.com/twbs/bootstrap)
+  - [bootstrap-native 2.0.26](https://github.com/thednp/bootstrap.native)
   
 - For test
   - [scalajs-scripts 1.1.2](https://github.com/vmunier/scalajs-scripts)

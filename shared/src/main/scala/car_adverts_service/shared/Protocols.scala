@@ -1,9 +1,9 @@
 package car_adverts_service.shared
 
 import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate, Fuel}
-import play.api.libs.json.{Format, JsError, JsPath, JsValue, Json, JsonValidationError, OFormat, Reads}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
+import play.api.libs.json.{JsPath, JsValue, Json, OFormat}
 
 /**
   * Created by DongHee Kim on 2019-05-09 오후 7:09.
