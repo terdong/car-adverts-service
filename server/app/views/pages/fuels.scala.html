@@ -1,0 +1,22 @@
+@()(implicit request: MessagesRequestHeader)
+@* Created by DongHee Kim on 2019-05-11 오전 12:56. *@
+
+
+@main(){
+    <div class="container">
+        <div class="row" >
+            <div class="col-sm" id="listAlert" >
+            </div>
+        </div>
+        <div class="row my-2">
+@*            <div class="col-sm-1">
+                <a href="@routes.HomeController.createForm()" class="float-right btn btn-warning btn-sm" >Create</a>
+            </div>*@
+        </div>
+    </div>
+    <div class="table-responsive-sm">
+        <table class="table" id="fuels-table">
+            
+        </table>
+    </div>
+}
