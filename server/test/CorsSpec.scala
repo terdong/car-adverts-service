@@ -19,7 +19,7 @@ class CorsSpec extends PlaySpec with GuiceOneAppPerSuite {
     "send 200 on a good request" in {
       val request = FakeRequest(
         method = GET,
-        uri = "/count",
+        uri = "/",
         headers = FakeHeaders(Seq(
           HeaderNames.HOST -> "localhost:9000",
           HeaderNames.ORIGIN -> "http://example.com",
