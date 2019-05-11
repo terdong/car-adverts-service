@@ -1,4 +1,4 @@
-version := "0.0.37"
+version := "0.0.38"
 
 name := "car_adverts_service"
 
@@ -22,7 +22,6 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
     "org.mockito" % "mockito-core" % "2.27.0" % "test",
     "org.scanamo" %% "scanamo" % "1.0.0-M9",
-    "com.gu" % "scanamo-testkit_2.12" % "1.0.0-M8",
     "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0",
     "org.webjars" % "bootstrap" % "4.3.1"
   ),
