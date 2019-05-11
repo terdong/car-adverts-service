@@ -181,6 +181,17 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
             <div class="modal-body">
               <form id="editForm" onsubmit={e: Event =>
                 e.preventDefault()
+                sendingData.value.newThing.map { newThing =>
+                  sendingData.value = if (newThing) {
+                    sendingData.value.copy(
+                      mileage = None,
+                      firstRegistration = None)
+                  } else {
+                    sendingData.value.copy(
+                      mileage = Some(document.getElementById("mileage").asInstanceOf[Input].value toInt),
+                      firstRegistration = Some(document.getElementById("firstRegistration").asInstanceOf[Input].value))
+                  }
+                }
                 put[CarAdvertToUpdate](
                   carAdvertsEditRoute(carAdvert.id),
                   sendingData.value
@@ -232,19 +243,6 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                                              val isChecked = !(newThing.value.toBoolean)
                                              newThing.value = isChecked.toString
                                              sendingData.value = sendingData.value.copy(newThing = Some(newThing.value.toBoolean))
-                                             if (isChecked) {
-                                               sendingData.value = sendingData.value.copy(
-                                                 newThing = Some(newThing.value.toBoolean),
-                                                 mileage = None,
-                                                 firstRegistration = None)
-                                               //getElementSafelyById[Input]("mileage").map(_.value="")
-                                               //getElementSafelyById[Input]("firstRegistration").map(_.value="")
-                                             } else {
-                                               sendingData.value = sendingData.value.copy(
-                                                 newThing = Some(newThing.value.toBoolean),
-                                                 mileage = Some(document.getElementById("mileage").asInstanceOf[Input].value.toInt),
-                                                 firstRegistration = Some(document.getElementById("firstRegistration").asInstanceOf[Input].value))
-                                             }
                                            }/>.asInstanceOf[Input]
                   checkbox.value = carAdvert.newThing.toString
                   if (carAdvert.newThing) {
@@ -259,7 +257,6 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                   <label for="message-text" class="col-form-label">Mileage</label>
                   <div class="input-group">
                     <input type="number" class="form-control" id="mileage" name="mileage" data:minlength="0" value={carAdvert.mileage.getOrElse("").toString} data:required="required"
-                           oninput={event: Event => sendingData.value = sendingData.value.copy(mileage = Some(mileage.value.toInt))}
                            disabled={sendingData.bind.newThing.getOrElse(carAdvert.newThing)}/>
                     <div class="input-group-prepend">
                       <div class="input-group-text">km</div>
@@ -269,7 +266,6 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                 <div class="form-group">
                   <label for="message-text" class="col-form-label">First Registration</label>
                   <input type="date" class="form-control" id="firstRegistration" name="firstRegistration" value={carAdvert.firstRegistration.getOrElse("")} data:required="required"
-                         oninput={event: Event => sendingData.value = sendingData.value.copy(firstRegistration = Some(firstRegistration.value))}
                          disabled={sendingData.bind.newThing.getOrElse(carAdvert.newThing)}/>
                 </div>
               </form>
