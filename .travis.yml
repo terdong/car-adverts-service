@@ -11,3 +11,9 @@ services:
 
 before_install:
   - docker run -d -p 8000:8000 dwmkerr/dynamodb
+
+script:
+  - sbt clean coverage test coverageReport
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
