@@ -11,6 +11,7 @@ import services.DynamoDbProvider
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.scanamo.auto._
+import org.scanamo.update.UpdateExpression
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:06.
   */
@@ -73,8 +74,8 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) extends Repositories[CarAdv
       ca.fuel.map(f => set('fuel -> f)),
       ca.price.map(p => set('price -> p)),
       ca.newThing.map(n => set('newThing -> n)),
-      ca.mileage.map(m => set('mileage -> m)),
-      ca.firstRegistration.map(f => set('firstregistration -> f))
+      Some(ca.mileage.map(m => set('mileage -> m)).getOrElse(remove('mileage))) ,
+      Some(ca.firstRegistration.map(f => set('firstRegistration -> f)).getOrElse(remove('firstRegistration)))
     )
     val r = NonEmptyList.fromList(updates.flatten).map(ups =>
       table.update('id -> id, ups.reduce)

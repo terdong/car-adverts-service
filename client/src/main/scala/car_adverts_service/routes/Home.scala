@@ -229,19 +229,21 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
                   <div class="custom-control custom-checkbox">
                     {val checkbox = <input type="checkbox" class="custom-control-input" id="newThing" name="newThing"
                                            onchange={event: Event =>
-                                             val isChecked = newThing.value.toBoolean
-                                             newThing.value = (!isChecked).toString
+                                             val isChecked = !(newThing.value.toBoolean)
+                                             newThing.value = isChecked.toString
                                              sendingData.value = sendingData.value.copy(newThing = Some(newThing.value.toBoolean))
                                              if (isChecked) {
                                                sendingData.value = sendingData.value.copy(
                                                  newThing = Some(newThing.value.toBoolean),
-                                                 mileage = Some(document.getElementById("mileage").asInstanceOf[Input].value.toInt),
-                                                 firstRegistration = Some(document.getElementById("firstRegistration").asInstanceOf[Input].value))
+                                                 mileage = None,
+                                                 firstRegistration = None)
+                                               //getElementSafelyById[Input]("mileage").map(_.value="")
+                                               //getElementSafelyById[Input]("firstRegistration").map(_.value="")
                                              } else {
                                                sendingData.value = sendingData.value.copy(
                                                  newThing = Some(newThing.value.toBoolean),
-                                                 mileage = None,
-                                                 firstRegistration = None)
+                                                 mileage = Some(document.getElementById("mileage").asInstanceOf[Input].value.toInt),
+                                                 firstRegistration = Some(document.getElementById("firstRegistration").asInstanceOf[Input].value))
                                              }
                                            }/>.asInstanceOf[Input]
                   checkbox.value = carAdvert.newThing.toString
