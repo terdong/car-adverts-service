@@ -100,7 +100,7 @@ class Fuels extends SimpleAjax with Protocols with SimpleAlert {
         {index.toString}
       </th>
       <td>
-        <input class="form-control form-control-sm" type="text" id="fuelNameToEdit" value={fuel.name}/>
+        {fuel.name}
       </td>
       <td>
         <button type="button" class="btn btn-outline-danger btn-sm"
