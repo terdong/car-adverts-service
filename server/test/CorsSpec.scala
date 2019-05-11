@@ -8,7 +8,7 @@ import play.api.test.Helpers._
 /**
   * Created by DongHee Kim on 2019-05-11 오후 2:33.
   */
-class CorsTest extends PlaySpec with GuiceOneAppPerSuite {
+class CorsSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "From the origin request, Routes" should {
 

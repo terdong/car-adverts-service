@@ -12,7 +12,7 @@ import org.scanamo._
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:18.
   */
-class DynamoDbTest extends PlaySpec{
+class DynamoDbSpec extends PlaySpec{
   val client = LocalDynamoDB.client()
 
   "LocalDynamoDB" should {

@@ -16,7 +16,7 @@ import org.scanamo.auto._
   */
 
 @Singleton
-class CarAdverts @Inject()(val dp: DynamoDbProvider) {
+class CarAdverts @Inject()(val dp: DynamoDbProvider) extends Repositories[CarAdvert]{
 
   val client = dp.client
 
@@ -27,12 +27,12 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
     def exec = ScanamoAsync.exec(client)(ops)
   }
 
-  def getMaxSize= {
+  override def getMaxSize= {
     val r = table.scan().map(_.size)
     r.exec
   }
 
-  def getListSortByField[F](fieldF : CarAdvert => F)(implicit ord: Ordering[F]) = {
+  override def getListSortByField[F](fieldF : CarAdvert => F)(implicit ord: Ordering[F]) = {
     val r  = priceIndex.scan().map(_.flatMap(_.toOption).sortBy(fieldF)(ord.reverse))
     r.exec
   }
@@ -42,27 +42,27 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
     r.exec
   }
 
-  def isExist(id:String) = {
+  override def isExist(id:String) = {
     table.query('id -> id).map(_.exists(_.isRight)).exec
   }
 
-  def getList = {
+  override def getList = {
     val r  = table.scan.map(_.flatMap(_.toOption).sortBy(_.id))
     r.exec
   }
 
-  def findById(id:String) = {
+  override def findById(id:String) = {
 //    val r = table.query('id -> id).map(_.headOption)
     val r = table.get('id -> id).map(_.flatMap(_.toOption))
     r.exec
   }
 
-  def insert(c:CarAdvert) = {
+  override def insert(c:CarAdvert) = {
     val r = table.put(c).map(_.flatMap(_.toOption))
     r.exec
   }
 
-  def insertAll(set:Set[CarAdvert]) = {
+  override def insertAll(set:Set[CarAdvert]) = {
     val r = table.putAll(set)
     r.exec
   }
@@ -86,7 +86,7 @@ class CarAdverts @Inject()(val dp: DynamoDbProvider) {
    // val r = table.update('id -> c.id)
   }*/
 
-  def delete(id:String) = {
+  override def delete(id:String) = {
     table.delete('id -> id).exec
   }
 }

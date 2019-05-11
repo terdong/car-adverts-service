@@ -1,6 +1,6 @@
 package dbs.repositories
 
-import car_adverts_service.shared.models.Fuel
+import car_adverts_service.shared.models.{CarAdvert, Fuel}
 import javax.inject.{Inject, Singleton}
 import org.scanamo.ops.ScanamoOps
 import org.scanamo.syntax._
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 
 @Singleton
-class Fuels @Inject()(val dp: DynamoDbProvider) {
+class Fuels @Inject()(val dp: DynamoDbProvider) extends Repositories[Fuel] {
 
   val client = dp.client
 
@@ -25,28 +25,31 @@ class Fuels @Inject()(val dp: DynamoDbProvider) {
     def exec = ScanamoAsync.exec(client)(ops)
   }
 
-  def isExist(name:String) = {
+  override def getMaxSize= {
+    val r = table.scan().map(_.size)
+    r.exec
+  }
+
+  override def isExist(name:String) = {
     table.query('name -> name).map(_.exists(_.isRight)).exec
   }
 
-  def getList = {
+  override def getList = {
     val r  = table.scan.map(_.flatMap(_.toOption).sortBy(_.name))
     r.exec
   }
 
-  def findById(name:String) = {
-    //    val r = table.query('id -> id).map(_.headOption)
+  override def findById(name:String) = {
     val r = table.get('name -> name).map(_.flatMap(_.toOption))
     r.exec
   }
 
-  def insert(f:Fuel) = {
+  override def insert(f:Fuel) = {
     val r = table.put(f).map(_.flatMap(_.toOption))
     r.exec
   }
 
-  def delete(name:String) = {
+  override def delete(name:String) = {
     table.delete('name -> name).exec
   }
-
 }

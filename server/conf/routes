@@ -21,7 +21,7 @@ GET           /caradverts/filter/:price        controllers.HomeController.listFi
 
 GET           /caradverts/sort/:field          controllers.HomeController.listSortedByField(field:String)
 
-GET           /caradverts/create               controllers.HomeController.createForm
+GET           /caradverts/new                  controllers.HomeController.createForm
 +nocsrf
 POST          /caradverts                      controllers.HomeController.create
 
@@ -45,7 +45,7 @@ GET           /deleteTest                      controllers.HomeController.delete
 
 GET           /fuels                           controllers.FuelController.index
 
-POST          /fuels                           controllers.FuelController.insert
+POST          /fuels/new                       controllers.FuelController.insert
 
 DELETE        /fuels/:id                       controllers.FuelController.delete(id:String)
 
