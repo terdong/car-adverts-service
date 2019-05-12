@@ -1,4 +1,4 @@
-version := "0.1.16"
+version := "0.1.17"
 
 name := "car_adverts_service"
 
@@ -6,7 +6,7 @@ maintainer := "terdong@gmail.com"
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
   name := "car_adverts_service",
-  version := "0.1.11",
+version := "0.1.17"
   scalaJSProjects := Seq(client),
   pipelineStages in Assets := Seq(scalaJSPipeline),
   pipelineStages := Seq(digest, gzip),
