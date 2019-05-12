@@ -42,7 +42,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       "price" -> number.verifying(min(0)),
       "newThing" -> boolean,
       "mileage" -> optional(number.verifying(min(0))),
-      "firstRegistration" -> optional(nonEmptyText).verifying("Please enter the correct date.",_.map(dateStr => Try(format.parse(dateStr)).isSuccess).getOrElse(false))
+      "firstRegistration" -> optional(nonEmptyText.verifying("Please enter the correct date.",dateStr => Try(format.parse(dateStr)).isSuccess))
     )(CarAdvert.apply)(CarAdvert.unapply).verifying("You must input fields!", carAdvert =>
       !(!carAdvert.newThing && (carAdvert.mileage.isEmpty || carAdvert.firstRegistration.isEmpty))
     )
