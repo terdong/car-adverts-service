@@ -1,10 +1,12 @@
-version := "0.1.11"
+version := "0.1.18"
 
 name := "car_adverts_service"
 
 maintainer := "terdong@gmail.com"
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
+  name := "car_adverts_service",
+version := "0.1.18"
   scalaJSProjects := Seq(client),
   pipelineStages in Assets := Seq(scalaJSPipeline),
   pipelineStages := Seq(digest, gzip),
@@ -55,6 +57,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
+  maintainer := "terdong@gmail.com",
   scalaVersion := "2.12.8",
   organization := "com.teamgehem",
   sources in(Compile, doc) := Seq.empty,
