@@ -29,7 +29,7 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-before_deploy: sbt
+before_deploy: sbt dist
 deploy:
   provider: releases
   api_key: fQ0nmLn/6pNDOZF33ELj9Z3rDTd2f6Tbi/uoB/v9bbPIATMcXzzoBo+67Qg2IDu70moFFzL3EIraQb/jFhjFejv5ZqJK/62AQU7vJEa3xbfKKTcjX2371UoETC4pLZND4DVjAq8Au+b7bKJzcB0sZAM9ZyY96YHpe/dk2QbLD5RcXj/+qwi81EQ+2Tq/7hZv9v2OS+nTdX4ZqzTqCHsvVH8A3AraSXuoDEcFYgV5+0woVyfqLKyKghb0zxw+PF0GOaMsxhZ0rf/7snfHaUipe/2ZESOuUpucZjly1zQCPcHrep+0+lCvSACHVKkyBfDu/jaEVhaJKuhF1kg9VQ38bU1B3WdzwcUWtekYNXljoL4xRxGxFPXIZVoE9xZSIk0XmUO/UGH03LqwPFzvzJw41nrE4DxLyD88HOb59fQa/LJ7cEzBDdfFpskpaCbsg8hL+MJs+pMhpQESx/zuPVlCgZeieG3HC984bWCnD5xBR3lX6mPF0u46lbUZfELNm7SFli27wetPzqHQuy5clxMJ2DNhSZeEKef5c2p7629jtPUqiSITRahNiYeyoy3T7nrQ/4MrDkHBKQMZ+lN39MIaHh5IdklUTJLeTTuumNFx2fKy2RjaqipTo2BP6k/ZUTwhCymLXMFaGIy6y56NX7kHU5teknYnenHTgkh8G8krnRw=
