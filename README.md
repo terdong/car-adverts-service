@@ -24,6 +24,11 @@ sbt run
 
 And then go to <http://localhost:9000> to see the running web application.
 
+## Download
+
+In addition to running the project, you can run it from [a deployed file on releases page](https://github.com/terdong/car_adverts_service/releases) or [docker image on the docker hub](https://cloud.docker.com/u/terdong/repository/docker/terdong/car_adverts_service).
+- docker image name: terdong/car_adverts_service:latest
+
 ## Funtions
 
 Explains each function.
