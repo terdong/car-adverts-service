@@ -24,7 +24,7 @@ version := "0.1.28"
     "com.vmunier" %% "scalajs-scripts" % "1.1.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.2" % "test",
     "org.mockito" % "mockito-core" % "2.27.0" % "test",
-    "org.scanamo" %% "scanamo" % "1.0.0-M9",
+    "org.scanamo" %% "scanamo" % "0.10",
     "com.fasterxml.uuid" % "java-uuid-generator" % "3.2.0",
     "org.webjars" % "bootstrap" % "4.3.1"
   ),

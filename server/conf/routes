@@ -4,47 +4,47 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET           /                                controllers.HomeController.home
+GET           /                              controllers.HomeController.home
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file                    controllers.Assets.versioned(path="/public", file: Asset)
+GET           /assets/*file                  controllers.Assets.versioned(path="/public", file: Asset)
 
 ## Car Advert Page
 
-GET           /caradverts                      controllers.HomeController.list
+GET           /caradverts/offset             controllers.HomeController.limitedList(offset:Option[String])
 
-GET           /caradverts/filter/:price        controllers.HomeController.listFilteredByPrice(price:Int)
+GET           /caradverts                    controllers.HomeController.list
 
-GET           /caradverts/sort/:field          controllers.HomeController.listSortedByField(field:String)
+POST          /caradverts/filter             controllers.HomeController.listFilteredByPrice
 
-GET           /caradverts/new                  controllers.HomeController.createForm
+GET           /caradverts/new                controllers.HomeController.createForm
 
-POST          /caradverts                      controllers.HomeController.create
+POST          /caradverts                    controllers.HomeController.create
 
-GET           /caradverts/                     controllers.HomeController.search(id:String = "")
+GET           /caradverts/                   controllers.HomeController.search(id:String = "")
 
-GET           /caradverts/:id                  controllers.HomeController.search(id:String)
+GET           /caradverts/:id                controllers.HomeController.search(id:String)
 
-PUT           /caradverts/:id                  controllers.HomeController.edit(id:String)
+PUT           /caradverts/:id                controllers.HomeController.edit(id:String)
 
-DELETE        /caradverts/:id                  controllers.HomeController.delete(id:String)
+DELETE        /caradverts/:id                controllers.HomeController.delete(id:String)
 
-GET           /generate100                     controllers.HomeController.generateRandomCarAdverts100
+GET           /generate100                   controllers.HomeController.generateRandomCarAdverts100
 
-GET           /insertTest                      controllers.HomeController.insertTest
+GET           /insertTest                    controllers.HomeController.insertTest
 
-GET           /updateTest                      controllers.HomeController.updateTest
+GET           /updateTest                    controllers.HomeController.updateTest
 
-GET           /deleteTest                      controllers.HomeController.deleteTest
+GET           /deleteTest                    controllers.HomeController.deleteTest
 
 ## Fuel Page
 
-GET           /fuels                           controllers.FuelController.index
+GET           /fuels                         controllers.FuelController.index
 
-POST          /fuels/new                       controllers.FuelController.insert
+POST          /fuels/new                     controllers.FuelController.insert
 
-DELETE        /fuels/:id                       controllers.FuelController.delete(id:String)
+DELETE        /fuels/:id                     controllers.FuelController.delete(id:String)
 
-GET           /fuels/list                      controllers.FuelController.list
+GET           /fuels/list                    controllers.FuelController.list
 
-GET           /javascriptRoutes                controllers.HomeController.javascriptRoutes
+GET           /javascriptRoutes              controllers.HomeController.javascriptRoutes

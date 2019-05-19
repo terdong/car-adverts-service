@@ -2,10 +2,12 @@ package car_adverts_service.shared.models
 
 import java.text.SimpleDateFormat
 import java.util.Date
+import collection.JavaConverters._
 
 /**
   * Created by DongHee Kim on 2019-05-08 오전 3:07.
   */
+
 case class CarAdvert(
                       id: String = "none",
                       title: String,
@@ -13,20 +15,21 @@ case class CarAdvert(
                       price: Int,
                       newThing: Boolean,
                       mileage: Option[Int],
-                      firstRegistration: Option[String]
+                      firstRegistration: Option[String],
+                      sort: Int = 0
                     )
 
 object CarAdvert {
 
-/*  def apply(
-             id:String,
-             title: String,
-             fuel: String,
-             price: Int,
-             newThing: Boolean,
-             mileage: Option[Int],
-             firstRegistration: Option[String]
-           ): CarAdvert = new CarAdvert(Generators.timeBasedGenerator().generate().toString, title, fuel, price, newThing, mileage, firstRegistration)*/
+  /*  def apply(
+               id:String,
+               title: String,
+               fuel: String,
+               price: Int,
+               newThing: Boolean,
+               mileage: Option[Int],
+               firstRegistration: Option[String]
+             ): CarAdvert = new CarAdvert(Generators.timeBasedGenerator().generate().toString, title, fuel, price, newThing, mileage, firstRegistration)*/
 
   def apply(
              id: String,
@@ -35,7 +38,8 @@ object CarAdvert {
              price: Int,
              newThing: Boolean = true,
              mileage: Option[Int] = None,
-             firstRegistration: Option[String] = None
+             firstRegistration: Option[String] = None,
+             sort: Int = 0,
            ): CarAdvert = new CarAdvert(id, title, fuel, price, newThing, mileage, firstRegistration)
 
   /*def create(title: String, fuel: String, price: Int) = {

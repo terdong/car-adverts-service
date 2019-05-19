@@ -4,7 +4,7 @@ import car_adverts_service.components.{SimpleAjax, SimpleAlert}
 import car_adverts_service.facades.Modal
 import car_adverts_service.routes.bases._
 import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate, Fuel}
-import car_adverts_service.shared.{JsonResult, Protocols}
+import car_adverts_service.shared.{CarAdvertLimitedList, CarAdvertLimitedList2, FilteredByPrice, JsonResult, Protocols}
 import com.thoughtworks.binding.Binding.{BindingSeq, Constants, Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom._
@@ -12,15 +12,17 @@ import org.scalajs.dom.html.Input
 import org.scalajs.dom.raw.HTMLFormElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js.Dynamic.{global => g}
 
 /**
   * Created by DongHee Kim on 2019-05-09 오전 6:08.
   */
 class Home extends SimpleAjax with Protocols with SimpleAlert {
-  val carAdvertsListRoute = g.jsRoutes.controllers.HomeController.list().url.toString
-  val carAdvertsListFilteredByPriceRoute = {price:Int => g.jsRoutes.controllers.HomeController.listFilteredByPrice(price).url.toString}
-  val carAdvertsListSortedByField = {field:String => g.jsRoutes.controllers.HomeController.listSortedByField(field).url.toString}
+//  val carAdvertsListRoute = g.jsRoutes.controllers.HomeController.list().url.toString
+  val carAdvertsListLimitDefaultRoute = g.jsRoutes.controllers.HomeController.limitedList().url.toString
+  val carAdvertsListLimitRoute = {offset:Option[String] => offset.map(offsetValue => s"${carAdvertsListLimitDefaultRoute}?offset=${offsetValue}").getOrElse(carAdvertsListLimitDefaultRoute) }
+  val carAdvertsListFilteredByPriceRoute = g.jsRoutes.controllers.HomeController.listFilteredByPrice().url.toString
   val carAdvertsSearchRoute = {id: String => g.jsRoutes.controllers.HomeController.search(id).url.toString }
   val carAdvertsEditRoute = { id: String => g.jsRoutes.controllers.HomeController.edit(id).url.toString }
   val carAdvertsDeleteRoute = { id: String => g.jsRoutes.controllers.HomeController.delete(id).url.toString }
@@ -28,9 +30,13 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
 
   console.log("Hello Home")
 
+  case class PriceFilter(price:Int, offset:Option[(String, String)])
+
   val carAdvertList = Vars.empty[CarAdvert]
   val carAdvertForEditModal = Var[Option[CarAdvert]](None)
   val fuelList = Vars.empty[Fuel]
+  val carAdvertListOffset = Var[Option[String]](None)
+  val carAdvertPriceFilterListOffset = Var[Option[PriceFilter]](None)
 
   getElementSafelyById[HTMLFormElement]("searchForm").map{ form =>
     form.onsubmit = {e:Event =>
@@ -42,6 +48,7 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
             case true =>
               jr.message.map{
                 _.validate[CarAdvert].map{ carAdvert =>
+                  resetOffsets
                   carAdvertList.value.clear()
                   carAdvertList.value += carAdvert
                 }
@@ -57,21 +64,24 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
     form.onsubmit = {e:Event =>
       e.preventDefault()
       val price = form.querySelector("input").asInstanceOf[Input].value.toInt
-      getList[CarAdvert](carAdvertsListFilteredByPriceRoute(price)).map{
-        case Some(list) =>
+      post[FilteredByPrice,CarAdvertLimitedList2](carAdvertsListFilteredByPriceRoute, FilteredByPrice(price, None)).map{
+        case Some(listLimit:CarAdvertLimitedList2) =>
+          resetOffsets
           carAdvertList.value.clear()
-          carAdvertList.value ++= list
+          carAdvertList.value ++= listLimit.list //.sortBy(_.price)(Ordering[Int].reverse)
+          carAdvertPriceFilterListOffset.value = Some(PriceFilter(price, listLimit.offset))
+          //carAdvertPriceFilterListOffset.value=Some(PriceFilter(price, Some(list.last.price)))
       }
     }
   }
 
-  getList[CarAdvert](carAdvertsListRoute).map {
-    case Some(list) =>
-      carAdvertList.value ++= list
+  get[CarAdvertLimitedList](carAdvertsListLimitRoute(None)).map {
+    case Some(listLimit) =>
+      carAdvertList.value ++= listLimit.list
+      carAdvertListOffset.value = listLimit.offset
       getElementSafelyById("caradverts-table").map { el =>
         dom.render(el, bindCarAdvertList(carAdvertList))
       }
-    //      console.log(list.mkString("\n"))
   }
 
   getList[Fuel](fuelListRoute).map{
@@ -88,31 +98,62 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
 
   bindRenderedDom(renderAlerts(),"listAlert")
 
+  def resetOffsets = {
+    carAdvertListOffset.value = None
+    carAdvertPriceFilterListOffset.value = None
+  }
 
   @dom
   def bindCarAdvertList(carAdvertList: Vars[CarAdvert]): Binding[BindingSeq[Node]] = {
-    val sortEvent = {field:String => e:Event =>
-      getList[CarAdvert](carAdvertsListSortedByField(field)).map{
-        case Some(list) =>
-          carAdvertList.value.clear()
-          carAdvertList.value ++= list
-      }}
+    val sortById = { idOption :Option[String] => e: Event =>
+      get[CarAdvertLimitedList](carAdvertsListLimitRoute(idOption)).map {
+        case Some(listLimit) =>
+          if(idOption.isEmpty){carAdvertList.value.clear(); carAdvertPriceFilterListOffset.value = None}
+          carAdvertList.value ++= listLimit.list
+          carAdvertListOffset.value = listLimit.offset
+      }
+    }
+    val sortByPrice = { priceFilter :PriceFilter => e:Event =>
+      post[FilteredByPrice, CarAdvertLimitedList2](carAdvertsListFilteredByPriceRoute, FilteredByPrice(priceFilter.price, priceFilter.offset)).map {
+        case Some(listLimit) =>
+          if(priceFilter.offset.isEmpty){carAdvertList.value.clear(); carAdvertListOffset.value = None}
+          carAdvertList.value ++= listLimit.list
+          carAdvertPriceFilterListOffset.value = Some(priceFilter.copy(offset = listLimit.offset))
+      }
+    }
+
     <thead class="thead-light">
       <tr>
         <th data:scope="col">#</th>
-        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("title")}><ins>Title↓</ins></th>
-        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("fuel")}><ins>Fuel↓</ins></th>
-        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("price")}><ins>Price↓</ins></th>
-        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("newThing")}><ins>New↓</ins></th>
-        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("mileage")}><ins>Mileage↓</ins></th>
-        <th data:scope="col" style="cursor:pointer" onclick={sortEvent("firstRegistration")}><ins>First Registration↓</ins></th>
-        <th data:scope="col" data:colspan="2" class="text-center">Action</th>
+        <th data:scope="col">Title</th>
+        <th data:scope="col">Fuel</th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortByPrice(PriceFilter(0, None))}><ins>Price↓</ins></th>
+        <th data:scope="col">New</th>
+        <th data:scope="col">Mileage</th>
+        <th data:scope="col">First Registration</th>
+        <th data:scope="col" style="cursor:pointer" onclick={sortById(None)} class="text-center" ><ins>ID↓</ins></th>
+        <th data:scope="col">Action</th>
       </tr>
     </thead>
       <tbody>
         {
           Constants(carAdvertList.bind.zipWithIndex: _*).map(v => renderTr(v._1, v._2 + 1)).map(_.bind)
         }
+        <tr>
+          {
+            carAdvertListOffset.bind match {
+              case v: Option[String] if(v.isDefined) =>
+                <td data:colspan="9"><button type="button" class="btn btn-secondary btn-block" onclick={ sortById(v) }>Get More</button></td>
+              case None => {
+                carAdvertPriceFilterListOffset.bind match{
+                  case Some(priceFilter) if(priceFilter.offset.isDefined) =>
+                    <td data:colspan="9"><button type="button" class="btn btn-secondary btn-block" onclick={ sortByPrice(priceFilter) }>Get More</button></td>
+                  case None => <!-- empty content-->
+                }
+              }
+            }
+          }
+        </tr>
       </tbody>
   }
 
@@ -138,7 +179,7 @@ class Home extends SimpleAjax with Protocols with SimpleAlert {
       <td>
         {carAdvert.firstRegistration.getOrElse("")}
       </td>
-      <td>
+      <td class="text-center">
         <input type="hidden" name="carAdvertId" id="carAdvertId" value={carAdvert.id} />
         <button type="button" class="btn btn-outline-dark btn-sm"
                 onclick={e: Event =>
