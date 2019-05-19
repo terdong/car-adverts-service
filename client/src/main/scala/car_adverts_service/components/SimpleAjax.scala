@@ -72,6 +72,14 @@ trait SimpleAjax {
     ).recover(recoverByCommon).map(resultByCommon(_))
   }
 
+  def post[P1, P2](url: String , data: P1)(implicit jsonFormat: OFormat[P1], jsonFormat2: OFormat[P2]) = {
+    Ajax.post(
+      url = url,
+      data = Json.prettyPrint(Json.toJson(data)),
+      headers = headers
+    ).recover(recoverByCommon).map(resultByCommon[P2](_))
+  }
+
   def postWithJsonResult[Protocol](url: String, data: Protocol)(implicit jsonFormat: OFormat[Protocol], jsonFormat2: OFormat[JsonResult]) = {
     Ajax.post(
       url = url,
@@ -113,14 +121,7 @@ trait SimpleAjax {
   def get[Protocol](url: String)(implicit jsonFormat: OFormat[Protocol]) = {
     Ajax.get(
       url = url,
-      headers = defaultHeaders
+      headers = defaultHeaders,
     ).recover(recoverByCommon).map(resultByCommon(_))
   }
-
-  /*  def get(url:String) = {
-      Ajax.get(
-        url = url,
-        headers = defaultHeaders
-      ).map(resultByJaValue(_))
-    }*/
 }

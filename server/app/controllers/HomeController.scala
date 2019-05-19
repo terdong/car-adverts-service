@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.util.Date
 
 import car_adverts_service.shared.models.{CarAdvert, CarAdvertToUpdate}
-import car_adverts_service.shared.{JsonResult, Protocols}
+import car_adverts_service.shared._
 import com.fasterxml.uuid.Generators
 import dbs.repositories.{CarAdverts, Fuels}
 import javax.inject._
@@ -42,7 +42,8 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       "price" -> number.verifying(min(0)),
       "newThing" -> boolean,
       "mileage" -> optional(number.verifying(min(0))),
-      "firstRegistration" -> optional(nonEmptyText.verifying("Please enter the correct date.",dateStr => Try(format.parse(dateStr)).isSuccess))
+      "firstRegistration" -> optional(nonEmptyText.verifying("Please enter the correct date.", dateStr => Try(format.parse(dateStr)).isSuccess)),
+      "sort" -> default(number, 0)
     )(CarAdvert.apply)(CarAdvert.unapply).verifying("You must input fields!", carAdvert =>
       !(!carAdvert.newThing && (carAdvert.mileage.isEmpty || carAdvert.firstRegistration.isEmpty))
     )
@@ -58,15 +59,15 @@ class HomeController @Inject()(carAdverts: CarAdverts,
   }
 
   //Can use this json validation to create a car advert.
-/*  val carAdvertReadsForServer = (
-    (JsPath \ "id").read[String](minLength[String](1)) and
-      (JsPath \ "title").read[String](minLength[String](1)) and
-      (JsPath \ "fuel").read[String](minLength[String](1)) and
-      (JsPath \ "price").read[Int](min[Int](0)) and
-      (JsPath \ "newThing").read[Boolean] and
-      (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
-      (JsPath \ "firstRegistration").readNullable[String](dateReads)
-    ) (CarAdvert.apply _)*/
+  /*  val carAdvertReadsForServer = (
+      (JsPath \ "id").read[String](minLength[String](1)) and
+        (JsPath \ "title").read[String](minLength[String](1)) and
+        (JsPath \ "fuel").read[String](minLength[String](1)) and
+        (JsPath \ "price").read[Int](min[Int](0)) and
+        (JsPath \ "newThing").read[Boolean] and
+        (JsPath \ "mileage").readNullable[Int](min[Int](0)) and
+        (JsPath \ "firstRegistration").readNullable[String](dateReads)
+      ) (CarAdvert.apply _)*/
 
   val carAdvertUpdateReadsForServer = (
     (JsPath \ "title").readNullable[String](minLength[String](1)) and
@@ -89,7 +90,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
   }
 
   def createForm = Action.async { implicit request =>
-    fuels.getList.map{ list =>
+    fuels.getList.map { list =>
       Ok(views.html.pages.create_form(carAdvertForm, list))
     }
   }
@@ -97,7 +98,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
   def create = Action.async { implicit request =>
     val result = carAdvertForm.bindFromRequest.fold(
       formWithErrors => {
-        fuels.getList.map{ list =>
+        fuels.getList.map { list =>
           BadRequest(views.html.pages.create_form(formWithErrors, list))
         }
       },
@@ -145,6 +146,13 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     }
   }
 
+  def limitedList(offset: Option[String]) = Action.async { implicit request =>
+    carAdverts.getLimitedList(offsetKey = offset).map { tuple =>
+      val json = Json.toJson(CarAdvertLimitedList(tuple._1, tuple._2))
+      Ok(json)
+    }
+  }
+
   def search(id: String) = Action.async {
     if (id.isEmpty) {
       Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.home().url))))))
@@ -158,37 +166,15 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     }
   }
 
-  def listFilteredByPrice(price: Int) = Action.async { implicit request =>
-    if (price < 0) {
-      Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.home().url))))))
-    } else {
-      carAdverts.getListFilterByPrice(price).map { list =>
-        val json = Json.toJson(list)
-        Ok(json)
-      }
-    }
+  def listFilteredByPrice = Action(parse.json).async { implicit request =>
+    request.body.validate[FilteredByPrice].fold(
+      errors => Future.successful(BadRequest(Json.toJson(JsonResult(false, Some(Json.toJson(routes.HomeController.home().url)))))),
+      filteredByPrice =>
+        carAdverts.getListFilterByPrice(filteredByPrice.price, filteredByPrice.offset).map { tuple =>
+          val json = Json.toJson(CarAdvertLimitedList2(tuple._1, tuple._2))
+          Ok(json)
+        })
   }
-
-  def listSortedByField(field: String) = Action.async {
-
-    val r = field match {
-      case "title" => carAdverts.getListSortByField(_.title)
-      case "fuel" => carAdverts.getListSortByField(_.fuel)
-      case "price" => carAdverts.getListSortByField(_.price)
-      case "newThing" => carAdverts.getListSortByField(_.newThing)
-      case "mileage" => carAdverts.getListSortByField(_.mileage)
-      case "firstRegistration" => carAdverts.getListSortByField(_.firstRegistration)
-    }
-
-    r.map { list =>
-      val json = Json.toJson(list)
-      Ok(json)
-    }
-  }
-
-  /*  def insertFuel = Action.async{
-
-    }*/
 
   def generateRandomCarAdverts100 = Action.async {
     val set = mutable.Set.empty[CarAdvert]
@@ -197,6 +183,7 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     val end = LocalDate.of(2019, 5, 31)
 
     import scala.language.postfixOps
+
     for (i <- 1 to 100) {
       val uuid = Generators.timeBasedGenerator().generate()
       val title = Random.alphanumeric.filter(_.isLetterOrDigit).take(Random.nextInt(10) + 1).mkString
@@ -210,8 +197,9 @@ class HomeController @Inject()(carAdverts: CarAdverts,
       }
     }
 
-    carAdverts.insertAll(set.toSet).map { _ =>
-      Redirect("/")
+    carAdverts.insertAll(set.toSet).map {
+      _ =>
+        Redirect("/")
     }
   }
 
@@ -222,7 +210,9 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     val date = sdf.format(new Date())
     //    carAdverts.insert(CarAdvert(uuid , "Audi A4 Avant", "gasoline",1000, true, None, None )).map{
     carAdverts.insert(CarAdvert(uuid.toString, "Audi A4 Avant", "gasoline", 1000)).map {
-      case Some(c: CarAdvert) => Ok(s"already exists = ${c.toString}")
+      case Some(c: CarAdvert) => Ok(s"already exists = ${
+        c.toString
+      }")
       case None => Ok("cool")
     }
   }
@@ -233,7 +223,9 @@ class HomeController @Inject()(carAdverts: CarAdverts,
     carAdverts.isExist(id).flatMap {
       case true => carAdverts.update(id, carAdvertToUpdate).map {
         //case false => InternalServerError("Not found target by the key.")
-        case Some(Right(c: CarAdvert)) => Ok(s"updated = ${c.toString}.")
+        case Some(Right(c: CarAdvert)) => Ok(s"updated = ${
+          c.toString
+        }.")
         case None => Ok("Nothing to change.")
         case Some(Left(error: ScanamoError)) =>
           logger.error(error.toString)
@@ -247,27 +239,29 @@ class HomeController @Inject()(carAdverts: CarAdverts,
 
   def deleteTest = Action.async {
     val id = "abcd"
-    carAdverts.delete(id).map { result =>
-      Ok(result.toString)
+    carAdverts.delete(id).map {
+      result =>
+        Ok(result.toString)
     }
   }
 
   def javascriptRoutes = //cached("javascriptRoutes") {
-    Action { implicit request =>
-      Ok(
-        JavaScriptReverseRouter("jsRoutes")(
-          routes.javascript.Assets.versioned,
-          routes.javascript.HomeController.list,
-          routes.javascript.HomeController.listFilteredByPrice,
-          routes.javascript.HomeController.listSortedByField,
-          routes.javascript.HomeController.search,
-          routes.javascript.HomeController.edit,
-          routes.javascript.HomeController.delete,
-          routes.javascript.FuelController.list,
-          routes.javascript.FuelController.insert,
-          routes.javascript.FuelController.delete
-        )
-      ).as("text/javascript")
+    Action {
+      implicit request =>
+        Ok(
+          JavaScriptReverseRouter("jsRoutes")(
+            routes.javascript.Assets.versioned,
+            routes.javascript.HomeController.list,
+            routes.javascript.HomeController.limitedList,
+            routes.javascript.HomeController.listFilteredByPrice,
+            routes.javascript.HomeController.search,
+            routes.javascript.HomeController.edit,
+            routes.javascript.HomeController.delete,
+            routes.javascript.FuelController.list,
+            routes.javascript.FuelController.insert,
+            routes.javascript.FuelController.delete
+          )
+        ).as("text/javascript")
     }
 
   //}

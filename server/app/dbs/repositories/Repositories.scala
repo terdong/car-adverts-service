@@ -11,7 +11,6 @@ trait Repositories[M] {
 
   def getMaxSize: Future[Int]
 
-
   def isExist(id: String): Future[Boolean]
 
   def getList: Future[List[M]]
@@ -23,6 +22,4 @@ trait Repositories[M] {
   def delete(id: String) : Future[DeleteItemResult]
 
   def insertAll(set: Set[M]): Future[List[BatchWriteItemResult]] = Future.successful(List.empty[BatchWriteItemResult])
-
-  def getListSortByField[F](fieldF: M => F)(implicit ord: Ordering[F]): Future[List[M]] = Future.successful(List.empty[M])
 }
